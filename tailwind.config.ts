@@ -11,6 +11,16 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        gray: {
+          primary: "#333333",
+          secondary: "#999999",
+          loginInput: "#F9FAFB",
+          loginInputBorder: "#DBDBDB",
+          inputTextColor: "#AAAFBC",
+        },
+        blue: {
+          primary: "#4880ED",
+        },
       },
     },
   },
