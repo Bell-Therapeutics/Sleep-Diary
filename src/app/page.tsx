@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 import PreviousIcon from "@/assets/svg/previousIcon.svg";
 import { useCreateCalendar } from "@/hook/useCreateCalendar";
@@ -9,9 +11,10 @@ import DayBox from "@/components/DayBox/DayBox";
 import { useMatchingDateType } from "@/hook/useMatchingDateType";
 import { Button } from "@/components/Button/Button";
 import Tooltip from "@/components/Tooltip/Tooltip";
-import { useRouter } from "next/navigation";
-import axios from "axios";
 import { BASE_URL } from "@/constants/baseUrl";
+import { useCreateWrittenArr } from "@/hook/useCreateWrittenArr";
+import { useConverDate } from "@/hook/useConverDate";
+import DateRangeContainer from "@/components/DateRangeContainer/DataRangeContainer";
 
 type ResponseType = {
   result_code: number;
@@ -37,12 +40,15 @@ export default function Home() {
   const [isSelectedDate, setIsSelectedDate] = useState<Date | null>(null);
   const [isAnyDateClicked, setIsAnyDateClicked] = useState(false);
   const [userInfo, setUserInfo] = useState<ResponseType>();
+  const [writtenDays, setWrittenDays] = useState<string[]>([]);
+
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
   const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
   const days = useCreateCalendar({ year: currentYear, month: currentMonth });
   const splitArray = useSplitArray(days, 7);
   const router = useRouter();
+  const yearMonth = `${currentYear}-${String(currentMonth).padStart(2, "0")}`;
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -74,7 +80,7 @@ export default function Home() {
     if (userId && token) {
       getUserInfo(userId, token);
     }
-  }, []);
+  }, [router]);
 
   const handleNextMonth = () => {
     if (userInfo) {
@@ -112,103 +118,130 @@ export default function Home() {
 
   const handleDayBoxCLick = (date: Date | null) => {
     if (!date) return;
-
     setIsAnyDateClicked(true);
     setIsSelectedDate(date);
   };
 
+  const fetchDiaryData = async () => {
+    try {
+      const response = await fetch(
+        `/api/diary?userId=dlwjddn06&yearMonth=2025-02`,
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        setWrittenDays(
+          useCreateWrittenArr({ writtenDays: data.data.dates, yearMonth }),
+        );
+      } else {
+        console.error("Error:", data.error);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDiaryData();
+  }, [yearMonth]);
+
   if (!userInfo) return <div>...Loading</div>;
 
   return (
-    <div
-      className={
-        "w-[480px] h-[100%] pb-[44px] mobleHeight:pb-[10px] bg-white px-6 flex flex-col justify-between"
-      }
-    >
+    <div className="w-[480px] h-[100%] pb-[44px] mobleHeight:pb-[10px] bg-white px-6 flex flex-col justify-between">
       <div>
-        <div className={"mt-[28px] mobleHeight:mt-[14px] "}>
-          <h1
-            className={
-              "text-gray-primary text-[32px] mobleHeight:text-[26px]  font-bold break-words"
-            }
-          >
+        <div className="mt-[28px] mobleHeight:mt-[14px]">
+          <h1 className="text-gray-primary text-[32px] mobleHeight:text-[26px] font-bold break-words">
             수면 일기
           </h1>
-          <p className={"text-gray-tertiary text-[16px] font-[500] mt-3"}>
-            {`사용 기간: ${userInfo.access_start.split(" ")[0]} ~ ${userInfo.access_end.split(" ")[0]}`}
+          <p className="text-gray-tertiary text-[16px] font-[500] mt-3">
+            {`사용 기간: ${userInfo.access_start.split(" ")[0]} ~ ${
+              userInfo.access_end.split(" ")[0]
+            }`}
           </p>
         </div>
-        <div className={"w-full flex flex-col mt-[34px] mobleHeight:mt-[8px]"}>
-          <div className={"w-[100%] flex items-center justify-between"}>
-            <div className={"w-[7px] h-[12px]"} onClick={handlePrevMonth}>
-              <Image src={PreviousIcon} alt={"왼쪽화살표"} />
+        <div className="w-full flex flex-col mt-[34px] mobleHeight:mt-[8px]">
+          <div className="w-[100%] flex items-center justify-between">
+            <div className="w-[7px] h-[12px]" onClick={handlePrevMonth}>
+              <Image src={PreviousIcon} alt="왼쪽화살표" />
             </div>
-            <p
-              className={
-                "text-gray-primary text-[20px] mobleHeight:text-[14px] font-[600] "
-              }
-            >
+            <p className="text-gray-primary text-[20px] mobleHeight:text-[14px] font-[600]">
               {`${currentYear}년 ${currentMonth}월`}
             </p>
             <div
-              className={"w-[7px] h-[12px] rotate-180"}
+              className="w-[7px] h-[12px] rotate-180"
               onClick={handleNextMonth}
             >
-              <Image src={PreviousIcon} alt={"오른쪽화살표"} />
+              <Image src={PreviousIcon} alt="오른쪽화살표" />
             </div>
           </div>
-          <div
-            className={
-              "w-full flex justify-between mt-[28px] mobleHeight:mt-[10px]"
-            }
-          >
+          <div className="w-full flex justify-between mt-[28px] mobleHeight:mt-[10px]">
             {weekdays.map((day) => (
               <div
                 key={day}
-                className={
-                  "w-[32px] h-[32px] flex justify-center items-center text-calendar-primary text-[15px] font-[500]"
-                }
+                className="w-[32px] h-[32px] flex justify-center items-center text-calendar-primary text-[15px] font-[500]"
               >
                 {day}
               </div>
             ))}
           </div>
-          <div className={"flex flex-wrap gap-4 mobleHeight:gap-2 w-full"}>
-            {splitArray.map((dayArr, weekIndex) => (
-              <div
-                key={`${currentYear}-${weekIndex}`}
-                className={"w-full flex justify-between"}
-              >
-                {dayArr.map((day, dayIndex) => (
-                  <div
-                    key={`${currentYear}-${currentMonth}-${day}-${dayIndex}`}
-                    className={"flex flex-col "}
-                  >
-                    <DayBox
-                      date={day}
-                      isAnyDateClicked={isAnyDateClicked}
-                      dateType={useMatchingDateType({
-                        date: day.date,
-                        validTo: userInfo?.access_end,
-                        validFrom: userInfo?.access_start,
-                      })}
-                      onDayBoxClick={() => handleDayBoxCLick(day.date)}
-                      isSelected={
-                        day.date
-                          ? day.date.getTime() === isSelectedDate?.getTime()
-                          : false
-                      }
-                    />
-                  </div>
-                ))}
-              </div>
-            ))}
+          <div className="flex flex-wrap gap-4 mobleHeight:gap-2 w-full">
+            {splitArray.map((dayArr, weekIndex) => {
+              // 각 날짜의 dateType 계산
+              const daysWithType = dayArr.map((day) => ({
+                ...day,
+                dateType: useMatchingDateType({
+                  date: day.date,
+                  validFrom: userInfo?.access_start || "",
+                  validTo: userInfo?.access_end || "",
+                }),
+              }));
+
+              return (
+                <DateRangeContainer
+                  key={`${currentYear}-${weekIndex}`}
+                  weekDays={daysWithType}
+                >
+                  {dayArr.map((day, dayIndex) => (
+                    <div
+                      key={`${currentYear}-${currentMonth}-${day}-${dayIndex}`}
+                      className="flex flex-col"
+                    >
+                      <DayBox
+                        date={day}
+                        isAnyDateClicked={isAnyDateClicked}
+                        isDiaryWritten={
+                          day.date !== null
+                            ? writtenDays.includes(
+                                useConverDate({ date: day.date }),
+                              )
+                            : false
+                        }
+                        dateType={useMatchingDateType({
+                          date: day.date,
+                          validTo: userInfo?.access_end,
+                          validFrom: userInfo?.access_start,
+                        })}
+                        onDayBoxClick={() => handleDayBoxCLick(day.date)}
+                        isSelected={
+                          day.date
+                            ? day.date.getTime() === isSelectedDate?.getTime()
+                            : false
+                        }
+                      />
+                    </div>
+                  ))}
+                </DateRangeContainer>
+              );
+            })}
           </div>
         </div>
       </div>
       <div>
         <Tooltip />
-        <Button disabled={true}>수면 일기 작성하기</Button>
+        <Button onClick={() => console.log(writtenDays)}>
+          수면 일기 작성하기
+        </Button>
       </div>
     </div>
   );
