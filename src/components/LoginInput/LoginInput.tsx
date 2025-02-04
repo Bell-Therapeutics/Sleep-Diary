@@ -10,9 +10,10 @@ import CloseEyeIcon from "@/assets/svg/closeEyeIcon.svg";
 
 type LoginInputProps = {
   inputType: "id" | "password";
+  onChange: (value: string) => void;
 };
 
-export const LoginInput = ({ inputType }: LoginInputProps) => {
+export const LoginInput = ({ inputType, onChange }: LoginInputProps) => {
   const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
   const inputTypeCondition = inputType === "id";
   return (
@@ -29,6 +30,7 @@ export const LoginInput = ({ inputType }: LoginInputProps) => {
         />
       </div>
       <input
+        onChange={(e) => onChange(e.target.value)}
         type={
           inputTypeCondition ? "text" : visiblePassword ? "text" : "password"
         }

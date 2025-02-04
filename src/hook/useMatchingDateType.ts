@@ -1,25 +1,40 @@
 import { DateType } from "@/types/DateType";
 
 type UseMatchingDateTypeProps = {
-  validFrom?: string;
-  validTo?: string;
+  validFrom: string;
+  validTo: string;
   date: Date | null;
 };
 
 export const useMatchingDateType = ({
-  validFrom = "2025 01 03",
-  validTo = "2025 02 10",
+  validFrom,
+  validTo,
   date,
 }: UseMatchingDateTypeProps): DateType => {
-  const startDate = new Date(validFrom).getTime();
-  const endDate = new Date(validTo).getTime();
-  const targetDate = date ? date.getTime() : null;
+  const valid_from = new Date(validFrom);
+  const valid_to = new Date(validTo);
 
-  if (!targetDate) return "notIncluded";
-  if (targetDate < startDate || targetDate > endDate) return "notIncluded";
-  if (targetDate > startDate && targetDate < endDate) return "middleDate";
-  if (targetDate === startDate) return "startDate";
-  if (targetDate === endDate) return "endDate";
+  const startDate = new Date(valid_from);
+  startDate.setHours(0, 0, 0, 0);
+
+  const endDate = new Date(valid_to);
+  endDate.setHours(0, 0, 0, 0);
+
+  const targetDateObj = date ? new Date(date) : null;
+
+  if (targetDateObj) {
+    targetDateObj.setHours(0, 0, 0, 0);
+  }
+
+  const startTime = startDate.getTime();
+  const endTime = endDate.getTime();
+  const targetTime = targetDateObj ? targetDateObj.getTime() : null;
+
+  if (!targetTime) return "notIncluded";
+  if (targetTime < startTime || targetTime > endTime) return "notIncluded";
+  if (targetTime > startTime && targetTime < endTime) return "middleDate";
+  if (targetTime === startTime) return "startDate";
+  if (targetTime === endTime) return "endDate";
 
   return "notIncluded";
 };

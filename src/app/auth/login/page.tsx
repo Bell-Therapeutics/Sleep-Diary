@@ -1,7 +1,28 @@
+"use client";
+
+import { useState } from "react";
+import { useLogin } from "@/hook/useLogin";
+import { useRouter } from "next/navigation";
+
 import { LoginInput } from "@/components/LoginInput/LoginInput";
 import { Button } from "@/components/Button/Button";
 
 const LoginPage = () => {
+  const [loginForm, setLoginForm] = useState({
+    id: "",
+    password: "",
+  });
+  console.log();
+
+  const handleInputChange = (type: "id" | "password", value: string) => {
+    setLoginForm((prev) => ({
+      ...prev,
+      [type]: value,
+    }));
+  };
+
+  const router = useRouter();
+
   return (
     <div
       className={
@@ -26,12 +47,24 @@ const LoginPage = () => {
           </p>
         </div>
         <div className={"flex gap-[20px] flex-col"}>
-          <LoginInput inputType={"id"} />
-          <LoginInput inputType={"password"} />
+          <LoginInput
+            inputType={"id"}
+            onChange={(value) => handleInputChange("id", value)}
+          />
+          <LoginInput
+            inputType={"password"}
+            onChange={(value) => handleInputChange("password", value)}
+          />
         </div>
       </div>
 
-      <Button>로그인</Button>
+      <Button
+        onClick={() =>
+          useLogin({ loginForm, onLoginSuccess: () => router.push("/") })
+        }
+      >
+        로그인
+      </Button>
     </div>
   );
 };
