@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLogin } from "@/hook/useLogin";
 import { useRouter } from "next/navigation";
 
@@ -8,11 +8,19 @@ import { LoginInput } from "@/components/LoginInput/LoginInput";
 import { Button } from "@/components/Button/Button";
 
 const LoginPage = () => {
+  const router = useRouter();
   const [loginForm, setLoginForm] = useState({
     id: "",
     password: "",
   });
-  console.log();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      router.push("/");
+    }
+  }, []);
 
   const handleInputChange = (type: "id" | "password", value: string) => {
     setLoginForm((prev) => ({
@@ -20,8 +28,6 @@ const LoginPage = () => {
       [type]: value,
     }));
   };
-
-  const router = useRouter();
 
   return (
     <div
