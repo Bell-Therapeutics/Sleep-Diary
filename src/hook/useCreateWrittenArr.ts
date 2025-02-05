@@ -4,7 +4,7 @@ type UseCreateWrittenArr = {
 };
 
 export const useCreateWrittenArr = ({
-  writtenDays,
+  writtenDays = [],
   yearMonth,
 }: UseCreateWrittenArr) => {
   const sortArr = writtenDays.sort((a, b) => Number(a) - Number(b));
