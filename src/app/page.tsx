@@ -60,17 +60,13 @@ export default function Home() {
   });
 
   const fetchDiaryData = async () => {
-    const token = localStorage.getItem("token");
-    if (!token || !userInfo?.user_id) return;
+    if (!userInfo?.user_id) return;
 
     try {
       const response = await fetch(
         `/api/diary?userId=${userInfo.user_id}&yearMonth=${yearMonth}`,
         {
           method: "GET",
-          headers: {
-            Authorization: token, // 이미 'Bearer '가 포함된 토큰
-          },
         },
       );
       const data = await response.json();
