@@ -93,7 +93,7 @@ export default function Home() {
     const getUserInfo = async (userId: string, token: string) => {
       try {
         const { data } = await axios.get<ResponseType>(
-          `${process.env.NEXT_PUBLIC_BASE_URL || BASE_URL}/user/info`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/user/info`,
           {
             headers: {
               "Content-Type": "application/json",
