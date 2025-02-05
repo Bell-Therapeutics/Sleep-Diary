@@ -6,7 +6,7 @@ type UseMatchingDateTypeProps = {
   date: Date | null;
 };
 
-export const useMatchingDateType = ({
+export const matchingDateType = ({
   validFrom,
   validTo,
   date,

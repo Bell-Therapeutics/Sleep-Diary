@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useLogin } from "@/hook/useLogin";
+import { Login } from "@/hook/Login";
 import { useRouter } from "next/navigation";
 
 import { LoginInput } from "@/components/LoginInput/LoginInput";
@@ -66,7 +66,7 @@ const LoginPage = () => {
 
       <Button
         onClick={() =>
-          useLogin({ loginForm, onLoginSuccess: () => router.push("/") })
+          Login({ loginForm, onLoginSuccess: () => router.push("/") })
         }
       >
         로그인

@@ -13,7 +13,7 @@ const getMonthLastDay = ({ year, month }: UseCreateCalendarProps) => {
   return new Date(year, month, 0).getDate();
 };
 
-export const useCreateCalendar = ({ year, month }: UseCreateCalendarProps) => {
+export const createCalendar = ({ year, month }: UseCreateCalendarProps) => {
   const firstDay = getMonthFirstDay({ year, month });
   const lastDay = getMonthLastDay({ year, month });
   const days: DateInfo[] = [];

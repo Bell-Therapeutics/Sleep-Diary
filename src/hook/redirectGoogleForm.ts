@@ -7,7 +7,6 @@ export const redirectGoogleForm = (userId: string) => {
   // 버튼 클릭 핸들러
 
   // 로컬 스토리지에서 사용자 이름 가져오기
-  const userName = localStorage.getItem("userName");
 
   if (!userId) {
     alert("사용자 이름을 찾을 수 없습니다.");

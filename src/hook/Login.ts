@@ -22,10 +22,7 @@ type LoginResponse = {
   remark?: string;
 };
 
-export const useLogin = async ({
-  loginForm,
-  onLoginSuccess,
-}: UseLoginProps) => {
+export const Login = async ({ loginForm, onLoginSuccess }: UseLoginProps) => {
   if (!loginForm.id || !loginForm.password) return;
 
   try {

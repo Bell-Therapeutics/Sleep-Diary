@@ -5,15 +5,15 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 
 import PreviousIcon from "@/assets/svg/previousIcon.svg";
-import { useCreateCalendar } from "@/hook/useCreateCalendar";
-import { useSplitArray } from "@/hook/useSplitArray";
+import { createCalendar } from "@/hook/createCalendar";
+import { splitArray } from "@/hook/splitArray";
 import DayBox from "@/components/DayBox/DayBox";
-import { useMatchingDateType } from "@/hook/useMatchingDateType";
+import { matchingDateType } from "@/hook/matchingDateType";
 import { Button } from "@/components/Button/Button";
 import Tooltip from "@/components/Tooltip/Tooltip";
 import { BASE_URL } from "@/constants/baseUrl";
-import { useCreateWrittenArr } from "@/hook/useCreateWrittenArr";
-import { useConverDate } from "@/hook/useConverDate";
+import { createWrittenArr } from "@/hook/createWrittenArr";
+import { converDate } from "@/hook/converDate";
 import DateRangeContainer from "@/components/DateRangeContainer/DataRangeContainer";
 import { returnTooltipCondition } from "@/hook/returnTooltipCondition";
 import { redirectGoogleForm } from "@/hook/redirectGoogleForm";
@@ -48,8 +48,8 @@ export default function Home() {
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
   const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
-  const days = useCreateCalendar({ year: currentYear, month: currentMonth });
-  const splitArray = useSplitArray(days, 7);
+  const days = createCalendar({ year: currentYear, month: currentMonth });
+  const splitArr = splitArray(days, 7);
   const router = useRouter();
   const yearMonth = `${currentYear}-${String(currentMonth).padStart(2, "0")}`;
   const today = new Date();
@@ -66,7 +66,7 @@ export default function Home() {
 
       if (response.ok) {
         const dates = data.data.dates || [];
-        setWrittenDays(useCreateWrittenArr({ writtenDays: dates, yearMonth }));
+        setWrittenDays(createWrittenArr({ writtenDays: dates, yearMonth }));
       } else {
         console.error("Error:", data.error);
       }
@@ -78,8 +78,8 @@ export default function Home() {
   useEffect(() => {
     // 선택된 날짜가 없으면 오늘 날짜 기준으로 체크
     const dateToCheck = isSelectedDate || today;
-    const dateStr = useConverDate({ date: dateToCheck });
-    const todayStr = useConverDate({ date: today });
+    const dateStr = converDate({ date: dateToCheck });
+    const todayStr = converDate({ date: today });
 
     setIsDisable(
       dateStr !== todayStr ||
@@ -228,11 +228,11 @@ export default function Home() {
             ))}
           </div>
           <div className="flex flex-wrap gap-4 mobleHeight:gap-2 w-full">
-            {splitArray.map((dayArr, weekIndex) => {
+            {splitArr.map((dayArr, weekIndex) => {
               // 각 날짜의 dateType 계산
               const daysWithType = dayArr.map((day) => ({
                 ...day,
-                dateType: useMatchingDateType({
+                dateType: matchingDateType({
                   date: day.date,
                   validFrom: userInfo?.access_start || "",
                   validTo: userInfo?.access_end || "",
@@ -256,11 +256,11 @@ export default function Home() {
                           isDiaryWritten={
                             day.date !== null
                               ? writtenDays.includes(
-                                  useConverDate({ date: day.date }),
+                                  converDate({ date: day.date }),
                                 )
                               : false
                           }
-                          dateType={useMatchingDateType({
+                          dateType={matchingDateType({
                             date: day.date,
                             validTo: userInfo?.access_end,
                             validFrom: userInfo?.access_start,
