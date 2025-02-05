@@ -63,9 +63,18 @@ export default function Home() {
     // userInfo가 없으면 return
     if (!userInfo?.user_id) return;
 
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/diary?userId=${userInfo.user_id}&yearMonth=${yearMonth}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: token,
+          },
+        },
       );
       const data = await response.json();
 
@@ -160,12 +169,16 @@ export default function Home() {
   };
 
   const recordWrittenDay = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
     try {
       const data = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/diary`,
         {
           method: "POST",
           headers: {
+            Authorization: token,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
