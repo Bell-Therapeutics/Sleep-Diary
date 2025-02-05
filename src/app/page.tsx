@@ -52,6 +52,12 @@ export default function Home() {
   const router = useRouter();
   const yearMonth = `${currentYear}-${String(currentMonth).padStart(2, "0")}`;
   const today = new Date();
+  const api = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
   const fetchDiaryData = async () => {
     // userInfo가 없으면 return
@@ -91,16 +97,12 @@ export default function Home() {
     const token = localStorage.getItem("token");
     const getUserInfo = async (userId: string, token: string) => {
       try {
-        const { data } = await axios.get<ResponseType>(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/user/info`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              userId: userId,
-              Authorization: token,
-            },
+        const { data } = await api.get<ResponseType>("/user/info", {
+          headers: {
+            userId,
+            Authorization: token,
           },
-        );
+        });
         if (data) {
           setUserInfo(data);
         }
