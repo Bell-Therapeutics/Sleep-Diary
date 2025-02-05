@@ -11,7 +11,6 @@ import DayBox from "@/components/DayBox/DayBox";
 import { matchingDateType } from "@/hook/matchingDateType";
 import { Button } from "@/components/Button/Button";
 import Tooltip from "@/components/Tooltip/Tooltip";
-import { BASE_URL } from "@/constants/baseUrl";
 import { createWrittenArr } from "@/hook/createWrittenArr";
 import { converDate } from "@/hook/converDate";
 import DateRangeContainer from "@/components/DateRangeContainer/DataRangeContainer";
