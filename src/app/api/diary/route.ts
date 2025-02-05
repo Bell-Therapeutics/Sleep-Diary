@@ -86,10 +86,7 @@ export const GET = async (req: Request) => {
     });
 
     if (!data) {
-      return NextResponse.json(
-        { error: "해당 userId와 yearMonth에 대한 데이터가 없습니다." },
-        { status: 404 },
-      );
+      return NextResponse.json({ data: [] }, { status: 200 });
     }
 
     return NextResponse.json({ data }, { status: 200 });
