@@ -65,7 +65,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/diary?userId=${userInfo.user_id}&yearMonth=${yearMonth}`,
+        `$/api/diary?userId=${userInfo.user_id}&yearMonth=${yearMonth}`,
         {
           method: "GET",
           headers: {
@@ -170,20 +170,17 @@ export default function Home() {
 
     if (!token) return;
     try {
-      const data = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/diary`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: userInfo?.user_id,
-            date: today,
-          }),
+      const data = await fetch(`/api/diary`, {
+        method: "POST",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          userId: userInfo?.user_id,
+          date: today,
+        }),
+      });
 
       if (data.ok) {
         console.log("기록 성공");
