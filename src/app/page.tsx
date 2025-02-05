@@ -60,11 +60,8 @@ export default function Home() {
   });
 
   const fetchDiaryData = async () => {
-    // userInfo가 없으면 return
-    if (!userInfo?.user_id) return;
-
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token || !userInfo?.user_id) return;
 
     try {
       const response = await fetch(
@@ -72,7 +69,7 @@ export default function Home() {
         {
           method: "GET",
           headers: {
-            Authorization: token,
+            Authorization: token, // 이미 'Bearer '가 포함된 토큰
           },
         },
       );
