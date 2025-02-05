@@ -15,6 +15,8 @@ import { BASE_URL } from "@/constants/baseUrl";
 import { useCreateWrittenArr } from "@/hook/useCreateWrittenArr";
 import { useConverDate } from "@/hook/useConverDate";
 import DateRangeContainer from "@/components/DateRangeContainer/DataRangeContainer";
+import { returnTooltipCondition } from "@/hook/returnTooltipCondition";
+import { redirectGoogleForm } from "@/hook/redirectGoogleForm";
 
 type ResponseType = {
   result_code: number;
@@ -41,6 +43,7 @@ export default function Home() {
   const [isAnyDateClicked, setIsAnyDateClicked] = useState(false);
   const [userInfo, setUserInfo] = useState<ResponseType>();
   const [writtenDays, setWrittenDays] = useState<string[]>([]);
+  const [isDisable, setIsDisable] = useState<boolean>(false);
 
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
@@ -49,6 +52,40 @@ export default function Home() {
   const splitArray = useSplitArray(days, 7);
   const router = useRouter();
   const yearMonth = `${currentYear}-${String(currentMonth).padStart(2, "0")}`;
+  const today = new Date();
+
+  const fetchDiaryData = async () => {
+    // userInfo가 없으면 return
+    if (!userInfo?.user_id) return;
+
+    try {
+      const response = await fetch(
+        `/api/diary?userId=${userInfo.user_id}&yearMonth=${yearMonth}`,
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        const dates = data.data.dates || [];
+        setWrittenDays(useCreateWrittenArr({ writtenDays: dates, yearMonth }));
+      } else {
+        console.error("Error:", data.error);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    // 선택된 날짜가 없으면 오늘 날짜 기준으로 체크
+    const dateToCheck = isSelectedDate || today;
+    const dateStr = useConverDate({ date: dateToCheck });
+    const todayStr = useConverDate({ date: today });
+
+    setIsDisable(
+      dateStr !== todayStr ||
+        (dateStr === todayStr && writtenDays.includes(todayStr)),
+    );
+  }, [isSelectedDate, writtenDays, today]);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -66,7 +103,6 @@ export default function Home() {
           },
         );
         if (data) {
-          console.log(data);
           setUserInfo(data);
         }
       } catch (e) {
@@ -122,33 +158,39 @@ export default function Home() {
     setIsSelectedDate(date);
   };
 
-  const fetchDiaryData = async () => {
+  const recordWrittenDay = async () => {
     try {
-      const response = await fetch(
-        `/api/diary?userId=dlwjddn06&yearMonth=2025-02`,
-      );
-      const data = await response.json();
+      const data = await fetch("/api/diary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: userInfo?.user_id,
+          date: today,
+        }),
+      });
 
-      if (response.ok) {
-        setWrittenDays(
-          useCreateWrittenArr({ writtenDays: data.data.dates, yearMonth }),
-        );
-      } else {
-        console.error("Error:", data.error);
+      if (data.ok) {
+        console.log("기록 성공");
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
 
+  // useEffect 수정
   useEffect(() => {
-    fetchDiaryData();
-  }, [yearMonth]);
+    // userInfo가 있을 때만 fetchDiaryData 실행
+    if (userInfo?.user_id) {
+      fetchDiaryData();
+    }
+  }, [yearMonth, userInfo]); // use
 
   if (!userInfo) return <div>...Loading</div>;
 
   return (
-    <div className="w-[480px] h-[100%] pb-[44px] mobleHeight:pb-[10px] bg-white px-6 flex flex-col justify-between">
+    <div className="flex-1 pb-[44px] mobleHeight:pb-[10px] bg-white px-6 flex flex-col justify-between">
       <div>
         <div className="mt-[28px] mobleHeight:mt-[14px]">
           <h1 className="text-gray-primary text-[32px] mobleHeight:text-[26px] font-bold break-words">
@@ -202,35 +244,37 @@ export default function Home() {
                   key={`${currentYear}-${weekIndex}`}
                   weekDays={daysWithType}
                 >
-                  {dayArr.map((day, dayIndex) => (
-                    <div
-                      key={`${currentYear}-${currentMonth}-${day}-${dayIndex}`}
-                      className="flex flex-col"
-                    >
-                      <DayBox
-                        date={day}
-                        isAnyDateClicked={isAnyDateClicked}
-                        isDiaryWritten={
-                          day.date !== null
-                            ? writtenDays.includes(
-                                useConverDate({ date: day.date }),
-                              )
-                            : false
-                        }
-                        dateType={useMatchingDateType({
-                          date: day.date,
-                          validTo: userInfo?.access_end,
-                          validFrom: userInfo?.access_start,
-                        })}
-                        onDayBoxClick={() => handleDayBoxCLick(day.date)}
-                        isSelected={
-                          day.date
-                            ? day.date.getTime() === isSelectedDate?.getTime()
-                            : false
-                        }
-                      />
-                    </div>
-                  ))}
+                  {dayArr.map((day, dayIndex) => {
+                    return (
+                      <div
+                        key={`${currentYear}-${currentMonth}-${day}-${dayIndex}`}
+                        className="flex flex-col"
+                      >
+                        <DayBox
+                          date={day}
+                          isAnyDateClicked={isAnyDateClicked}
+                          isDiaryWritten={
+                            day.date !== null
+                              ? writtenDays.includes(
+                                  useConverDate({ date: day.date }),
+                                )
+                              : false
+                          }
+                          dateType={useMatchingDateType({
+                            date: day.date,
+                            validTo: userInfo?.access_end,
+                            validFrom: userInfo?.access_start,
+                          })}
+                          onDayBoxClick={() => handleDayBoxCLick(day.date)}
+                          isSelected={
+                            day.date
+                              ? day.date.getTime() === isSelectedDate?.getTime()
+                              : false
+                          }
+                        />
+                      </div>
+                    );
+                  })}
                 </DateRangeContainer>
               );
             })}
@@ -238,8 +282,20 @@ export default function Home() {
         </div>
       </div>
       <div>
-        <Tooltip />
-        <Button onClick={() => console.log(writtenDays)}>
+        <Tooltip
+          statusCode={returnTooltipCondition({
+            selectedDate: isSelectedDate,
+            writtenDays: writtenDays.length > 0 ? writtenDays : [],
+            today,
+          })}
+        />
+        <Button
+          disabled={isDisable}
+          onClick={() => {
+            recordWrittenDay();
+            redirectGoogleForm(userInfo?.name);
+          }}
+        >
           수면 일기 작성하기
         </Button>
       </div>
