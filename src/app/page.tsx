@@ -65,7 +65,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `/api/diary?userId=${userInfo.user_id}&yearMonth=${yearMonth}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/diary?userId=${userInfo.user_id}&yearMonth=${yearMonth}`,
       );
       const data = await response.json();
 
@@ -161,16 +161,19 @@ export default function Home() {
 
   const recordWrittenDay = async () => {
     try {
-      const data = await fetch("/api/diary", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const data = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/diary`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: userInfo?.user_id,
+            date: today,
+          }),
         },
-        body: JSON.stringify({
-          userId: userInfo?.user_id,
-          date: today,
-        }),
-      });
+      );
 
       if (data.ok) {
         console.log("기록 성공");
