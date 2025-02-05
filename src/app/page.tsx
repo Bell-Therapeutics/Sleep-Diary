@@ -65,7 +65,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `$/api/diary?userId=${userInfo.user_id}&yearMonth=${yearMonth}`,
+        `/api/diary?userId=${userInfo.user_id}&yearMonth=${yearMonth}`,
         {
           method: "GET",
           headers: {
