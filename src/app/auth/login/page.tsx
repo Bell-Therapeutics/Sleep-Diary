@@ -1,7 +1,34 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Login } from "@/hook/Login";
+import { useRouter } from "next/navigation";
+
 import { LoginInput } from "@/components/LoginInput/LoginInput";
 import { Button } from "@/components/Button/Button";
 
 const LoginPage = () => {
+  const router = useRouter();
+  const [loginForm, setLoginForm] = useState({
+    id: "",
+    password: "",
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      router.push("/");
+    }
+  }, []);
+
+  const handleInputChange = (type: "id" | "password", value: string) => {
+    setLoginForm((prev) => ({
+      ...prev,
+      [type]: value,
+    }));
+  };
+
   return (
     <div
       className={
@@ -26,12 +53,24 @@ const LoginPage = () => {
           </p>
         </div>
         <div className={"flex gap-[20px] flex-col"}>
-          <LoginInput inputType={"id"} />
-          <LoginInput inputType={"password"} />
+          <LoginInput
+            inputType={"id"}
+            onChange={(value) => handleInputChange("id", value)}
+          />
+          <LoginInput
+            inputType={"password"}
+            onChange={(value) => handleInputChange("password", value)}
+          />
         </div>
       </div>
 
-      <Button>로그인</Button>
+      <Button
+        onClick={() =>
+          Login({ loginForm, onLoginSuccess: () => router.push("/") })
+        }
+      >
+        로그인
+      </Button>
     </div>
   );
 };

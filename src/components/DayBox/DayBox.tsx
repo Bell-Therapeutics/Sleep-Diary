@@ -12,7 +12,7 @@ type DayBoxProps = {
 
 const DayBox = ({
   date,
-  isDiaryWritten = true,
+  isDiaryWritten,
   dateType = "notIncluded",
   isSelected = false,
   onDayBoxClick,

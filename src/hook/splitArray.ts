@@ -1,6 +1,6 @@
 import { DateInfo } from "@/types/DayInfo";
 
-export const useSplitArray = (arr: DateInfo[], splitSize: number) => {
+export const splitArray = (arr: DateInfo[], splitSize: number) => {
   const splitArray = [];
   for (let i = 0; i < arr.length; i += splitSize) {
     splitArray.push(arr.slice(i, i + splitSize));

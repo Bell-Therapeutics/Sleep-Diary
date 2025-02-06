@@ -1,3 +1,5 @@
+"use client";
+
 import "./globals.css";
 import localFont from "next/font/local";
 
@@ -14,9 +16,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${pretendard.variable}`}>
+    <html lang="ko" className={`${pretendard.variable} w-full h-full`}>
       <body
-        className={`${pretendard.className} w-[100vw] h-[100vh] bg-blue-600 flex justify-center`}
+        className={`${pretendard.className} w-[100vw] h-[100%]  bg-gray-tertiary flex justify-center`}
       >
         {children}
       </body>
