@@ -37,9 +37,7 @@ export const LoginInput = ({ inputType, onChange }: LoginInputProps) => {
         className={
           "w-[100%] ml-[16px] bg-gray-loginInput outline-none text-gray-inputTextColor"
         }
-        placeholder={
-          inputTypeCondition ? "아이디 / 이름 / 전화번호" : "비밀번호"
-        }
+        placeholder={inputTypeCondition ? "아이디" : "비밀번호"}
       />
       {!inputTypeCondition && (
         <div

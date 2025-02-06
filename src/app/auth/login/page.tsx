@@ -42,14 +42,14 @@ const LoginPage = () => {
               "text-gray-primary text-2xl font-bold leading-9 break-word whitespace-pre-line"
             }
           >
-            {"안녕하세요\n 뮤지토닌 수면일기입니다."}
+            {"뮤지토닌 수면 일기"}
           </h1>
           <p
             className={
               "text-gray-secondary text-[15px] font-[400] leading-[22.5px] break-word mt-2"
             }
           >
-            부여받은 아이디, 이름, 전화번호로 로그인 가능합니다.
+            부여받은 아이디로 로그인이 가능합니다.
           </p>
         </div>
         <div className={"flex gap-[20px] flex-col"}>
