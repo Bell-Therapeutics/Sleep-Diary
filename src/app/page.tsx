@@ -195,14 +195,14 @@ export default function Home() {
         </div>
         <div className="w-full flex flex-col mt-[34px] mobleHeight:mt-[8px]">
           <div className="w-[100%] flex items-center justify-between">
-            <div className="w-[7px] h-[12px]" onClick={handlePrevMonth}>
+            <div className="w-[20px] h-[12px] " onClick={handlePrevMonth}>
               <Image src={PreviousIcon} alt="왼쪽화살표" />
             </div>
             <p className="text-gray-primary text-[20px] mobleHeight:text-[14px] font-[600]">
               {`${currentYear}년 ${currentMonth}월`}
             </p>
             <div
-              className="w-[7px] h-[12px] rotate-180"
+              className="w-[20px] h-[12px] rotate-180 "
               onClick={handleNextMonth}
             >
               <Image src={PreviousIcon} alt="오른쪽화살표" />
