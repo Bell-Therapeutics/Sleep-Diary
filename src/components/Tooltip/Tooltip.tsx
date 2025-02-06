@@ -1,15 +1,13 @@
 import Image from "next/image";
 import BubbleTail from "@/assets/svg/bubbleTail.svg";
 
-type TooltipStatusCode = 0 | 1 | 2 | 3 | 4;
+type TooltipStatusCode = 0 | 1 | 2;
 
 const Tooltip = ({ statusCode }: { statusCode: TooltipStatusCode }) => {
   const status = {
-    0: "오류",
-    1: "어젯밤 수면은 어떠셨나요? 🌙",
-    2: "아쉽게도 이전 기록은 작성할 수 없어요 😭",
-    3: "이미 수면 일기 작성을 완료했어요 👍",
-    4: "아직은 작성할 수 없어요 😵",
+    0: "",
+    1: "아직은 작성할 수 없어요 😵",
+    2: "이전 기록은 작성할 수 없어요 😭",
   } as const;
 
   return (

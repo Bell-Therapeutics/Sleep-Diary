@@ -1,4 +1,4 @@
-export const redirectGoogleForm = (userId: string) => {
+export const redirectGoogleForm = (userId: string | null) => {
   // 구글 폼 URL과 필드 ID는 실제 값으로 변경해주세요
   const GOOGLE_FORM_URL =
     "https://docs.google.com/forms/d/e/1FAIpQLSfINyucYt81Edo0zLJt54jWzKIIDA4N3HydtGwMhzVKEHopnQ/viewform?usp=dialog";
