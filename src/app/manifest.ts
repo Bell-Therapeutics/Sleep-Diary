@@ -10,7 +10,7 @@ export default function manifest(): MetadataRoute.Manifest {
         src: "/icons/sleepDiaryLogo-192.png",
         sizes: "192x192",
         type: "image/png",
-        purpose: "any",
+        purpose: "maskable",
       },
       {
         src: "/icons/sleepDiaryLogo-256.png",
