@@ -235,15 +235,13 @@ export default function Home() {
         )}
       </div>
       <div>
-        {isSelectedDate &&
-          isSelectedDate.getTime() !== startOfToday.getTime() && (
-            <Tooltip
-              statusCode={returnTooltipCondition({
-                selectedDate: isSelectedDate,
-                today,
-              })}
-            />
-          )}
+        <Tooltip
+          statusCode={returnTooltipCondition({
+            selectedDate: isSelectedDate,
+            today,
+            writtenDays,
+          })}
+        />
         <Button
           disabled={isDisable}
           onClick={() => {
