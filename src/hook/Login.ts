@@ -27,7 +27,7 @@ export const Login = async ({ loginForm, onLoginSuccess }: UseLoginProps) => {
 
   try {
     const { data } = await axios.post<LoginResponse>(
-      `${process.env.NEXT_PUBLIC_BASE_URL || BASE_URL}/login`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/login`,
       {
         password: loginForm.password,
       },
@@ -39,13 +39,15 @@ export const Login = async ({ loginForm, onLoginSuccess }: UseLoginProps) => {
       },
     );
 
-    if (data) {
+    if (data.user_id && data.token && data.access_end && data.access_start) {
       localStorage.setItem("userId", data.user_id);
       localStorage.setItem("valid_from", data.access_start);
       localStorage.setItem("valid_to", data.access_end);
       localStorage.setItem("token", data.token);
 
       onLoginSuccess();
+    } else {
+      alert("아이디와 비번을 확인해주세요.");
     }
 
     return true;

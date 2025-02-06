@@ -1,8 +1,8 @@
 export const redirectGoogleForm = (userId: string) => {
   // 구글 폼 URL과 필드 ID는 실제 값으로 변경해주세요
   const GOOGLE_FORM_URL =
-    "https://docs.google.com/forms/d/e/1FAIpQLSfMwlhAgp9wUkpB9O1cNAYkt4PJtfUDg3Hylq0emKSmPbaBvQ/viewform?usp=dialog";
-  const NAME_FIELD_ID = "entry.783639710"; // 구글 폼의 이름 필드 ID
+    "https://docs.google.com/forms/d/e/1FAIpQLSfINyucYt81Edo0zLJt54jWzKIIDA4N3HydtGwMhzVKEHopnQ/viewform?usp=dialog";
+  const NAME_FIELD_ID = "entry.164312056"; // 구글 폼의 이름 필드 ID
 
   // 버튼 클릭 핸들러
 
