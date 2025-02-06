@@ -16,7 +16,7 @@ import { redirectGoogleForm } from "@/hook/redirectGoogleForm";
 import LoadingBox from "@/components/LoadingBox/LoadingBox";
 import { UserInfoType } from "@/types/UserInfo";
 import CalendarBox from "@/components/CalendarBox/CalendarBox";
-import LoadingIcon from "@/assets/svg/loadingIconGray.svg"; //회색버전
+import LoadingIcon from "@/assets/svg/loadingIconGray.svg";
 
 export default function Home() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -25,6 +25,7 @@ export default function Home() {
   const [userInfo, setUserInfo] = useState<UserInfoType>();
   const [writtenDays, setWrittenDays] = useState<string[]>([]);
   const [isDisable, setIsDisable] = useState<boolean>(false);
+  const [isDataReady, setIsDataReady] = useState(false);
 
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
@@ -51,31 +52,63 @@ export default function Home() {
     setIsSelectedDate(date);
   };
 
-  const fetchDiaryData = async () => {
-    if (!userInfo?.user_id) return;
-
+  const fetchDiaryData = async (userId: string) => {
     try {
-      const response = await fetch(
-        `/api/diary?userId=${userInfo.user_id}&yearMonth=${yearMonth}`,
-        {
-          method: "GET",
-        },
+      const diaryResponse = await fetch(
+        `/api/diary?userId=${userId}&yearMonth=${yearMonth}`,
       );
-      const data = await response.json();
+      const diaryData = await diaryResponse.json();
 
-      if (response.ok) {
-        const dates = data.data.dates || [];
-        setWrittenDays(createWrittenArr({ writtenDays: dates, yearMonth }));
-      } else {
-        console.error("Error:", data.error);
+      if (diaryResponse.ok) {
+        setWrittenDays(
+          createWrittenArr({
+            writtenDays: diaryData.data.dates || [],
+            yearMonth,
+          }),
+        );
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error(error);
+    }
+  };
+
+  const fetchingInitialData = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      const token = localStorage.getItem("token");
+
+      if (!userId || !token) {
+        router.push("/auth/login");
+        return;
+      }
+
+      const userInfoResponse = await api.get<UserInfoType>("/user/info", {
+        headers: { userId, Authorization: token },
+      });
+
+      setUserInfo(userInfoResponse.data);
+      await fetchDiaryData(userInfoResponse.data.user_id);
+      setIsDataReady(true);
+    } catch (error) {
+      console.error(error);
     }
   };
 
   useEffect(() => {
-    // 선택된 날짜가 없으면 오늘 날짜 기준으로 체크
+    fetchingInitialData();
+  }, []);
+
+  // 월이 변경될 때마다 데이터 다시 fetch
+  useEffect(() => {
+    if (userInfo?.user_id) {
+      setIsDataReady(false);
+      fetchDiaryData(userInfo.user_id).then(() => {
+        setIsDataReady(true);
+      });
+    }
+  }, [yearMonth]);
+
+  useEffect(() => {
     const dateToCheck = isSelectedDate || today;
     const dateStr = converDate({ date: dateToCheck });
     const todayStr = converDate({ date: today });
@@ -85,33 +118,6 @@ export default function Home() {
         (dateStr === todayStr && writtenDays.includes(todayStr)),
     );
   }, [isSelectedDate, writtenDays, today]);
-
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
-    const getUserInfo = async (userId: string, token: string) => {
-      try {
-        const { data } = await api.get<UserInfoType>("/user/info", {
-          headers: {
-            userId,
-            Authorization: token,
-          },
-        });
-        if (data) {
-          setUserInfo(data);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    };
-
-    if (!userId && !token) {
-      router.push("/auth/login");
-    }
-    if (userId && token) {
-      getUserInfo(userId, token);
-    }
-  }, [router]);
 
   const handleNextMonth = () => {
     if (userInfo) {
@@ -165,20 +171,12 @@ export default function Home() {
       });
 
       if (data.ok) {
-        console.log("기록 성공");
+        await fetchDiaryData(userInfo!.user_id);
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
-
-  // useEffect 수정
-  useEffect(() => {
-    // userInfo가 있을 때만 fetchDiaryData 실행
-    if (userInfo?.user_id) {
-      fetchDiaryData();
-    }
-  }, [yearMonth, userInfo]); // use
 
   return (
     <div className="flex-1 pb-[44px] mobleHeight:pb-[25px] bg-white px-6 flex flex-col justify-between">
@@ -211,7 +209,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {userInfo && writtenDays ? (
+        {isDataReady && userInfo ? (
           <CalendarBox
             dateArr={splitArr}
             userInfo={userInfo}
