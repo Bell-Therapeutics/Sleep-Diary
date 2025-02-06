@@ -21,29 +21,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${pretendard.variable} w-full h-full`}>
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <link
-          rel="sleepDiaryLogo"
-          sizes="192x192"
-          href="/icons/sleepDiaryLogo-192.png"
-        />
-        <link
-          rel="sleepDiaryLogo"
-          sizes="256x256"
-          href="/icons/sleepDiaryLogo-256.png"
-        />
-        <link
-          rel="sleepDiaryLogo"
-          sizes="384x384"
-          href="/icons/sleepDiaryLogo-384.png"
-        />
-        <link
-          rel="sleepDiaryLogo"
-          sizes="512x512"
-          href="/icons/sleepDiaryLogo-512.png"
-        />
-      </head>
       <body
         className={`${pretendard.className} w-[100vw] h-[100%]  bg-gray-tertiary flex justify-center`}
       >
