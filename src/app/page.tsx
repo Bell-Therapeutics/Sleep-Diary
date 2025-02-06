@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -16,37 +16,21 @@ import { converDate } from "@/hook/converDate";
 import DateRangeContainer from "@/components/DateRangeContainer/DataRangeContainer";
 import { returnTooltipCondition } from "@/hook/returnTooltipCondition";
 import { redirectGoogleForm } from "@/hook/redirectGoogleForm";
-
-type ResponseType = {
-  result_code: number;
-  token: string;
-  name: string;
-  user_id: string;
-  access_start: string;
-  access_end: string;
-  last_session_day: string;
-  access_count: number;
-  touch_mode: number;
-  push_yn: "Y" | "N";
-  st_score: number;
-  sleep_score: number;
-  breathe_score: number;
-  latest_avg_inhale: number;
-  latest_avg_exhale: number;
-  is_tutorial_completed: boolean;
-};
+import LoadingBox from "@/components/LoadingBox/LoadingBox";
+import { UserInfoType } from "@/types/UserInfo";
+import CalendarBox from "@/components/CalendarBox/CalendarBox";
+import LoadingIcon from "@/assets/svg/loadingIconGray.svg"; //회색버전
 
 export default function Home() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isSelectedDate, setIsSelectedDate] = useState<Date | null>(null);
   const [isAnyDateClicked, setIsAnyDateClicked] = useState(false);
-  const [userInfo, setUserInfo] = useState<ResponseType>();
+  const [userInfo, setUserInfo] = useState<UserInfoType>();
   const [writtenDays, setWrittenDays] = useState<string[]>([]);
   const [isDisable, setIsDisable] = useState<boolean>(false);
 
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
-  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
   const days = createCalendar({ year: currentYear, month: currentMonth });
   const splitArr = splitArray(days, 7);
   const router = useRouter();
@@ -63,6 +47,12 @@ export default function Home() {
       "Content-Type": "application/json",
     },
   });
+
+  const handleDayBoxCLick = (date: Date | null) => {
+    if (!date) return;
+    setIsAnyDateClicked(true);
+    setIsSelectedDate(date);
+  };
 
   const fetchDiaryData = async () => {
     if (!userInfo?.user_id) return;
@@ -104,7 +94,7 @@ export default function Home() {
     const token = localStorage.getItem("token");
     const getUserInfo = async (userId: string, token: string) => {
       try {
-        const { data } = await api.get<ResponseType>("/user/info", {
+        const { data } = await api.get<UserInfoType>("/user/info", {
           headers: {
             userId,
             Authorization: token,
@@ -160,12 +150,6 @@ export default function Home() {
     }
   };
 
-  const handleDayBoxCLick = (date: Date | null) => {
-    if (!date) return;
-    setIsAnyDateClicked(true);
-    setIsSelectedDate(date);
-  };
-
   const recordWrittenDay = async () => {
     const token = localStorage.getItem("token");
 
@@ -199,9 +183,6 @@ export default function Home() {
     }
   }, [yearMonth, userInfo]); // use
 
-  if (!userInfo) return <div>...Loading</div>;
-  if (!writtenDays) return <div>...Loading</div>;
-
   return (
     <div className="flex-1 pb-[44px] mobleHeight:pb-[25px] bg-white px-6 flex flex-col justify-between">
       <div>
@@ -210,9 +191,11 @@ export default function Home() {
             수면 일기
           </h1>
           <p className="text-gray-tertiary text-[16px] font-[500] mt-3">
-            {`사용 기간: ${userInfo.access_start.split(" ")[0]} ~ ${
-              userInfo.access_end.split(" ")[0]
-            }`}
+            {userInfo
+              ? `사용 기간: ${userInfo.access_start.split(" ")[0]} ~ ${
+                  userInfo.access_end.split(" ")[0]
+                }`
+              : "데이터를 불러오고 있습니다."}
           </p>
         </div>
         <div className="w-full flex flex-col mt-[34px] mobleHeight:mt-[8px]">
@@ -230,68 +213,20 @@ export default function Home() {
               <Image src={PreviousIcon} alt="오른쪽화살표" />
             </div>
           </div>
-          <div className="w-full flex justify-between mt-[26px] mobleHeight:mt-[10px]">
-            {weekdays.map((day) => (
-              <div
-                key={day}
-                className="w-[32px] h-[32px] flex justify-center items-center text-calendar-primary text-[15px] font-[500]"
-              >
-                {day}
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-4 mobleHeight:gap-2 w-full mt-[14px]">
-            {splitArr.map((dayArr, weekIndex) => {
-              const daysWithType = dayArr.map((day) => ({
-                ...day,
-                dateType: matchingDateType({
-                  date: day.date,
-                  validFrom: userInfo?.access_start || "",
-                  validTo: userInfo?.access_end || "",
-                }),
-              }));
-
-              return (
-                <DateRangeContainer
-                  key={`${currentYear}-${weekIndex}`}
-                  weekDays={daysWithType}
-                >
-                  {dayArr.map((day, dayIndex) => {
-                    return (
-                      <div
-                        key={`${currentYear}-${currentMonth}-${day}-${dayIndex}`}
-                        className="flex flex-col"
-                      >
-                        <DayBox
-                          date={day}
-                          isAnyDateClicked={isAnyDateClicked}
-                          isDiaryWritten={
-                            day.date !== null
-                              ? writtenDays.includes(
-                                  converDate({ date: day.date }),
-                                )
-                              : false
-                          }
-                          dateType={matchingDateType({
-                            date: day.date,
-                            validTo: userInfo?.access_end,
-                            validFrom: userInfo?.access_start,
-                          })}
-                          onDayBoxClick={() => handleDayBoxCLick(day.date)}
-                          isSelected={
-                            day.date
-                              ? day.date.getTime() === isSelectedDate?.getTime()
-                              : false
-                          }
-                        />
-                      </div>
-                    );
-                  })}
-                </DateRangeContainer>
-              );
-            })}
-          </div>
         </div>
+        {userInfo && writtenDays ? (
+          <CalendarBox
+            dateArr={splitArr}
+            userInfo={userInfo}
+            isSelectedDate={isSelectedDate}
+            writtenDays={writtenDays}
+            currentDate={currentDate}
+            handleDayBoxCLick={handleDayBoxCLick}
+            isAnyDateClicked={isAnyDateClicked}
+          />
+        ) : (
+          <LoadingBox />
+        )}
       </div>
       <div>
         {isSelectedDate &&
@@ -307,10 +242,33 @@ export default function Home() {
           disabled={isDisable}
           onClick={() => {
             recordWrittenDay();
-            redirectGoogleForm(userInfo?.name);
+            redirectGoogleForm(userInfo?.name || null);
           }}
         >
-          수면 일기 작성하기
+          {userInfo ? (
+            isSelectedDate ? (
+              isSelectedDate.getTime() !== startOfToday.getTime() ? (
+                "수면일기 작성불가"
+              ) : writtenDays.includes(converDate({ date: today })) ? (
+                "수면일기 작성완료"
+              ) : (
+                "수면일기 작성하기"
+              )
+            ) : writtenDays.includes(converDate({ date: today })) ? (
+              "수면일기 작성완료"
+            ) : (
+              "수면일기 작성하기"
+            )
+          ) : (
+            <div className={"animate-spin"}>
+              <Image
+                src={LoadingIcon}
+                alt={"로딩아이콘"}
+                width={40}
+                height={40}
+              />
+            </div>
+          )}
         </Button>
       </div>
     </div>
