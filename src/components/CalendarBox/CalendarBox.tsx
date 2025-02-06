@@ -3,10 +3,6 @@ import { matchingDateType } from "@/hook/matchingDateType";
 import DateRangeContainer from "@/components/DateRangeContainer/DataRangeContainer";
 import DayBox from "@/components/DayBox/DayBox";
 import { converDate } from "@/hook/converDate";
-import Tooltip from "@/components/Tooltip/Tooltip";
-import { returnTooltipCondition } from "@/hook/returnTooltipCondition";
-import { Button } from "@/components/Button/Button";
-import { redirectGoogleForm } from "@/hook/redirectGoogleForm";
 import { UserInfoType } from "@/types/UserInfo";
 
 type CalendarProps = {
@@ -30,12 +26,6 @@ const CalendarBox = ({
 }: CalendarProps) => {
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
-  const today = new Date();
-  const startOfToday = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
-  );
   const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
