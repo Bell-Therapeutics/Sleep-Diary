@@ -52,6 +52,11 @@ export default function Home() {
   const router = useRouter();
   const yearMonth = `${currentYear}-${String(currentMonth).padStart(2, "0")}`;
   const today = new Date();
+  const startOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
   const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BASE_URL,
     headers: {
@@ -195,9 +200,10 @@ export default function Home() {
   }, [yearMonth, userInfo]); // use
 
   if (!userInfo) return <div>...Loading</div>;
+  if (!writtenDays) return <div>...Loading</div>;
 
   return (
-    <div className="flex-1 pb-[44px] mobleHeight:pb-[10px] bg-white px-6 flex flex-col justify-between">
+    <div className="flex-1 pb-[44px] mobleHeight:pb-[25px] bg-white px-6 flex flex-col justify-between">
       <div>
         <div className="mt-[28px] mobleHeight:mt-[14px]">
           <h1 className="text-gray-primary text-[32px] mobleHeight:text-[26px] font-bold break-words">
@@ -224,7 +230,7 @@ export default function Home() {
               <Image src={PreviousIcon} alt="오른쪽화살표" />
             </div>
           </div>
-          <div className="w-full flex justify-between mt-[28px] mobleHeight:mt-[10px]">
+          <div className="w-full flex justify-between mt-[26px] mobleHeight:mt-[10px]">
             {weekdays.map((day) => (
               <div
                 key={day}
@@ -234,9 +240,8 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <div className="flex flex-wrap gap-4 mobleHeight:gap-2 w-full">
+          <div className="flex flex-wrap gap-4 mobleHeight:gap-2 w-full mt-[14px]">
             {splitArr.map((dayArr, weekIndex) => {
-              // 각 날짜의 dateType 계산
               const daysWithType = dayArr.map((day) => ({
                 ...day,
                 dateType: matchingDateType({
@@ -289,13 +294,15 @@ export default function Home() {
         </div>
       </div>
       <div>
-        <Tooltip
-          statusCode={returnTooltipCondition({
-            selectedDate: isSelectedDate,
-            writtenDays: writtenDays.length > 0 ? writtenDays : [],
-            today,
-          })}
-        />
+        {isSelectedDate &&
+          isSelectedDate.getTime() !== startOfToday.getTime() && (
+            <Tooltip
+              statusCode={returnTooltipCondition({
+                selectedDate: isSelectedDate,
+                today,
+              })}
+            />
+          )}
         <Button
           disabled={isDisable}
           onClick={() => {
