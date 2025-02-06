@@ -4,12 +4,14 @@ type UseMatchingDateTypeProps = {
   validFrom: string;
   validTo: string;
   date: Date | null;
+  weekIndex?: number;
 };
 
 export const matchingDateType = ({
   validFrom,
   validTo,
   date,
+  weekIndex,
 }: UseMatchingDateTypeProps): DateType => {
   const valid_from = new Date(validFrom);
   const valid_to = new Date(validTo);

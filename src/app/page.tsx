@@ -48,10 +48,16 @@ export default function Home() {
 
   const handleDayBoxCLick = (date: Date | null) => {
     if (!date) return;
-    setIsAnyDateClicked(true);
+
+    // 클릭한 날짜가 오늘이면 isAnyDateClicked를 false로
+    if (date.getTime() === startOfToday.getTime()) {
+      setIsAnyDateClicked(false);
+    } else {
+      setIsAnyDateClicked(true);
+    }
+
     setIsSelectedDate(date);
   };
-
   const fetchDiaryData = async (userId: string) => {
     try {
       const diaryResponse = await fetch(
@@ -112,6 +118,11 @@ export default function Home() {
     const dateToCheck = isSelectedDate || today;
     const dateStr = converDate({ date: dateToCheck });
     const todayStr = converDate({ date: today });
+
+    if (today.getMonth() + 1 !== currentMonth) {
+      setIsDisable(true);
+      return;
+    }
 
     setIsDisable(
       dateStr !== todayStr ||
@@ -242,7 +253,9 @@ export default function Home() {
         >
           {userInfo ? (
             isSelectedDate ? (
-              isSelectedDate.getTime() !== startOfToday.getTime() ? (
+              writtenDays.includes(converDate({ date: isSelectedDate })) ? (
+                "수면일기 작성완료"
+              ) : isSelectedDate.getTime() !== startOfToday.getTime() ? (
                 "수면일기 작성불가"
               ) : writtenDays.includes(converDate({ date: today })) ? (
                 "수면일기 작성완료"
