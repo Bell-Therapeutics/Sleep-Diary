@@ -20,7 +20,7 @@ const DayBox = ({
 }: DayBoxProps) => {
   const dayTypeStyles = {
     startDate: isSelected ? "" : "rounded-l-xl bg-day-primary",
-    middleDate: isSelected ? "" : "rounded-[6px] bg-day-primary",
+    middleDate: isSelected ? "" : "rounded-[4px] bg-day-primary",
     endDate: isSelected ? "" : "rounded-r-xl bg-day-primary",
     notIncluded: "",
   } as const;
@@ -77,9 +77,11 @@ const DayBox = ({
           {date.day !== "" && <p className={getTextStyles()}>{date.day}</p>}
         </div>
       </div>
-      {!isToday && isDiaryWritten && (
-        <p className={"text-gray-date text-[11px] font-[500] text-center"}>
-          완료
+      {!isToday && (
+        <p
+          className={`text-gray-date text-[11px] font-[500] text-center ${!isDiaryWritten && "h-[16.5px]"}`}
+        >
+          {isDiaryWritten ? "완료" : ""}
         </p>
       )}
       {isToday && (
