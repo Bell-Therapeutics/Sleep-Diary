@@ -1,7 +1,6 @@
-"use client";
-
 import "./globals.css";
 import localFont from "next/font/local";
+import { Metadata } from "next";
 
 const pretendard = localFont({
   src: "../assets/fonts/PretendardVariable.woff2",
@@ -10,6 +9,11 @@ const pretendard = localFont({
   variable: "--font-pretendard",
 });
 
+export const metadata: Metadata = {
+  title: "뮤지토닌 수면일기",
+  description: "뮤지토닌 전자수면일기 앱입니다.",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,6 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${pretendard.variable} w-full h-full`}>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+      </head>
       <body
         className={`${pretendard.className} w-[100vw] h-[100%]  bg-gray-tertiary flex justify-center`}
       >

@@ -1,6 +1,7 @@
 {
   "name": "musitonin-sleep-diary",
   "short_name": "뮤지토닌 수면일기",
+  "title": "뮤지토닌 수면일기",
   "description": "뮤지토닌 전자수면일기 앱입니다.",
   "icons": [
     {
@@ -13,6 +14,6 @@
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
   "display": "standalone",
-  "scope": "./",
-  "start_url": "./"
+  "scope": "/",
+  "start_url": "/"
 }
