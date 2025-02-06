@@ -7,5 +7,5 @@ const nextConfig = {
 
 export default withPWA({
   ...nextConfig,
-  dest: "build",
+  dest: "public",
 });

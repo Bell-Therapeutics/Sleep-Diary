@@ -21,9 +21,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${pretendard.variable} w-full h-full`}>
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-      </head>
       <body
         className={`${pretendard.className} w-[100vw] h-[100%]  bg-gray-tertiary flex justify-center`}
       >

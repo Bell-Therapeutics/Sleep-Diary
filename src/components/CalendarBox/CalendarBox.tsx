@@ -49,9 +49,9 @@ const CalendarBox = ({
                 date: day.date,
                 validFrom: userInfo?.access_start || "",
                 validTo: userInfo?.access_end || "",
+                weekIndex: weekIndex,
               }),
             }));
-
             return (
               <DateRangeContainer
                 key={`${currentYear}-${weekIndex}`}
