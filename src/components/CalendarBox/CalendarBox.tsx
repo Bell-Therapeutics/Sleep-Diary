@@ -56,8 +56,6 @@ const CalendarBox = ({
               <DateRangeContainer
                 key={`${currentYear}-${weekIndex}`}
                 weekDays={daysWithType}
-                weekIndex={weekIndex}
-                length={length}
               >
                 {dayArr.map((day, dayIndex) => {
                   return (

@@ -9,15 +9,11 @@ interface DayInfo {
 interface DateRangeContainerProps {
   children: React.ReactNode;
   weekDays: DayInfo[];
-  weekIndex: number;
-  length: number;
 }
 
 const DateRangeContainer: React.FC<DateRangeContainerProps> = ({
   children,
   weekDays,
-  weekIndex,
-  length,
 }) => {
   const hasValidDate = weekDays.some(
     (day) =>
