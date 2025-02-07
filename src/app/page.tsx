@@ -102,6 +102,20 @@ export default function Home() {
 
   useEffect(() => {
     fetchingInitialData();
+
+    // visibilitychange 이벤트 핸들러 추가
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchingInitialData();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // 클린업 함수
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   // 월이 변경될 때마다 데이터 다시 fetch
@@ -118,7 +132,6 @@ export default function Home() {
     const dateToCheck = isSelectedDate || today;
     const dateStr = converDate({ date: dateToCheck });
     const todayStr = converDate({ date: today });
-
     if (today.getMonth() + 1 !== currentMonth) {
       setIsDisable(true);
       return;
@@ -246,7 +259,10 @@ export default function Home() {
           disabled={isDisable}
           onClick={() => {
             recordWrittenDay();
-            redirectGoogleForm(userInfo?.name || null);
+            redirectGoogleForm({
+              userId: userInfo?.user_id || null,
+              userName: userInfo?.name || null,
+            });
           }}
         >
           {userInfo ? (
