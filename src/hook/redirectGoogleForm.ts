@@ -1,16 +1,24 @@
-export const redirectGoogleForm = (userId: string | null) => {
+type RedirectGoogleForm = {
+  userId: string | null;
+  userName: string | null;
+};
+
+export const redirectGoogleForm = ({
+  userId,
+  userName,
+}: RedirectGoogleForm) => {
   const GOOGLE_FORM_URL =
     "https://docs.google.com/forms/d/e/1FAIpQLSfINyucYt81Edo0zLJt54jWzKIIDA4N3HydtGwMhzVKEHopnQ/viewform?usp=dialog";
   const NAME_FIELD_ID = "entry.164312056";
 
-  if (!userId) {
+  if (!userId || !userName) {
     alert("사용자 이름을 찾을 수 없습니다.");
     return;
   }
 
   try {
     const formURL = new URL(GOOGLE_FORM_URL);
-    formURL.searchParams.append(NAME_FIELD_ID, userId);
+    formURL.searchParams.append(NAME_FIELD_ID, `${userName}-${userId}`);
     formURL.searchParams.append("usp", "pp_url");
     formURL.searchParams.append("reset", "true");
 

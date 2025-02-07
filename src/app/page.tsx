@@ -259,7 +259,10 @@ export default function Home() {
           disabled={isDisable}
           onClick={() => {
             recordWrittenDay();
-            redirectGoogleForm(userInfo?.name || null);
+            redirectGoogleForm({
+              userId: userInfo?.user_id || null,
+              userName: userInfo?.name || null,
+            });
           }}
         >
           {userInfo ? (
