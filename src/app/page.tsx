@@ -132,7 +132,6 @@ export default function Home() {
     const dateToCheck = isSelectedDate || today;
     const dateStr = converDate({ date: dateToCheck });
     const todayStr = converDate({ date: today });
-
     if (today.getMonth() + 1 !== currentMonth) {
       setIsDisable(true);
       return;
