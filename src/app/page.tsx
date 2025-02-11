@@ -256,7 +256,7 @@ export default function Home() {
           })}
         />
         <Button
-          disabled={isDisable}
+          disabled={isDataReady && userInfo ? isDisable : true}
           onClick={() => {
             recordWrittenDay();
             redirectTallyForm({
@@ -265,7 +265,7 @@ export default function Home() {
             });
           }}
         >
-          {userInfo ? (
+          {isDataReady && userInfo ? (
             isSelectedDate ? (
               writtenDays.includes(converDate({ date: isSelectedDate })) ? (
                 "수면일기 작성완료"
