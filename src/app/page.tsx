@@ -12,7 +12,7 @@ import Tooltip from "@/components/Tooltip/Tooltip";
 import { createWrittenArr } from "@/hook/createWrittenArr";
 import { converDate } from "@/hook/converDate";
 import { returnTooltipCondition } from "@/hook/returnTooltipCondition";
-import { redirectGoogleForm } from "@/hook/redirectGoogleForm";
+import { redirectTallyForm } from "@/hook/redirectTallyForm";
 import LoadingBox from "@/components/LoadingBox/LoadingBox";
 import { UserInfoType } from "@/types/UserInfo";
 import CalendarBox from "@/components/CalendarBox/CalendarBox";
@@ -259,7 +259,7 @@ export default function Home() {
           disabled={isDisable}
           onClick={() => {
             recordWrittenDay();
-            redirectGoogleForm({
+            redirectTallyForm({
               userId: userInfo?.user_id || null,
               userName: userInfo?.name || null,
             });
