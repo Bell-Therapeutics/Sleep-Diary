@@ -28,7 +28,7 @@ export const POST = async (req: NextRequest) => {
   console.log("Headers:", Object.fromEntries(req.headers));
 
   try {
-    const webhookPayload = await req.json();
+    const webhookPayload: TallyWebhookPayload = await req.json();
     console.log("Full Payload:", JSON.stringify(webhookPayload, null, 2));
 
     const tallyFormSignatureKey = req.headers.get("tally-signature");
