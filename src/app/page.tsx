@@ -79,6 +79,9 @@ export default function Home() {
   };
 
   const fetchingInitialData = async () => {
+    console.log(
+      "ㅇㅇㅇㅇㅇㅇㅇㄴㅁㅇㅁㄴ;암너라ㅓㄴㅁ잃;ㅓ인;ㅏ머히ㅏ;ㅇㄴ머;허인머힝ㄴ머히ㅏㅓㅇㄴ미ㅏ허ㅣ안머히;ㅇㄴ머",
+    );
     try {
       const userId = localStorage.getItem("userId");
       const token = localStorage.getItem("token");
@@ -101,7 +104,9 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchingInitialData();
+    const timeoutId = setTimeout(() => {
+      fetchingInitialData();
+    }, 400);
 
     // visibilitychange 이벤트 핸들러 추가
     const handleVisibilityChange = () => {
@@ -114,6 +119,7 @@ export default function Home() {
 
     // 클린업 함수
     return () => {
+      clearTimeout(timeoutId); // timeout 클린업
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
@@ -177,31 +183,6 @@ export default function Home() {
     }
   };
 
-  const recordWrittenDay = async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) return;
-    try {
-      const data = await fetch(`/api/diary`, {
-        method: "POST",
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: userInfo?.user_id,
-          date: today,
-        }),
-      });
-
-      if (data.ok) {
-        await fetchDiaryData(userInfo!.user_id);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
   return (
     <div className="flex-1 pb-[44px] mobleHeight:pb-[25px] bg-white px-6 flex flex-col justify-between">
       <div>
@@ -258,7 +239,7 @@ export default function Home() {
         <Button
           disabled={isDataReady && userInfo ? isDisable : true}
           onClick={() => {
-            recordWrittenDay();
+            // recordWrittenDay();
             redirectTallyForm({
               userId: userInfo?.user_id || null,
               userName: userInfo?.name || null,
