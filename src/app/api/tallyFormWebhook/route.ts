@@ -24,10 +24,19 @@ type TallyWebhookPayload = {
 };
 
 export const POST = async (req: NextRequest) => {
+  console.log("Vercel Webhook Received");
+  console.log("Headers:", Object.fromEntries(req.headers));
+
   try {
-    const webhookPayload: TallyWebhookPayload = await req.json();
+    const webhookPayload = await req.json();
+    console.log("Full Payload:", JSON.stringify(webhookPayload, null, 2));
+
     const tallyFormSignatureKey = req.headers.get("tally-signature");
+    console.log("Tally-Signature:", tallyFormSignatureKey);
+
     const mySigningSecretKey = process.env.TALLY_SIGNING_SECRET;
+    console.log("Signing Secret Exists:", !!mySigningSecretKey);
+
     const prisma = new PrismaClient();
     if (!mySigningSecretKey) {
       return NextResponse.json(
