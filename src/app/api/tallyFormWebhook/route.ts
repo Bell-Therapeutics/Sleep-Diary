@@ -69,7 +69,7 @@ export const POST = async (req: NextRequest) => {
     if (tallyFormSignatureKey === checkSignature) {
       if (webhookPayload.eventType === "FORM_RESPONSE") {
         // 날짜 관련 로깅
-        const date = new Date(webhookPayload.createdAt);
+        const date = new Date();
         const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
         const day = String(date.getDate());
 
