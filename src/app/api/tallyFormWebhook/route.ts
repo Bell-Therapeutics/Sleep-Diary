@@ -34,7 +34,7 @@ export const POST = async (req: NextRequest) => {
     const tallyFormSignatureKey = req.headers.get("tally-signature");
     console.log("Tally-Signature:", tallyFormSignatureKey);
 
-    const mySigningSecretKey = process.env.TALLY_SIGNING_SECRET;
+    const mySigningSecretKey = process.env.NEXT_PUBLIC_TALLY_SIGNING_SECRET;
     console.log("Signing Secret Exists:", !!mySigningSecretKey);
 
     const prisma = new PrismaClient();
