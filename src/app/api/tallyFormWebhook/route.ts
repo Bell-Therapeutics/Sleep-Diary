@@ -27,7 +27,7 @@ export const POST = async (req: NextRequest) => {
   try {
     const webhookPayload: TallyWebhookPayload = await req.json();
     const tallyFormSignatureKey = req.headers.get("tally-signature");
-    const mySigningSecretKey = process.env.NEXT_PUBLIC_TALLY_SIGNING_SECRET;
+    const mySigningSecretKey = process.env.TALLY_SIGNING_SECRET;
     const prisma = new PrismaClient();
     if (!mySigningSecretKey) {
       return NextResponse.json(
