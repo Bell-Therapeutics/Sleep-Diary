@@ -17,6 +17,7 @@ type TallyWebhookPayload = {
       key: string;
       label: string;
       type: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       value: string | number | boolean | Array<any>;
     }>;
   };
