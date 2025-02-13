@@ -26,6 +26,7 @@ export default function Home() {
   const [writtenDays, setWrittenDays] = useState<string[]>([]);
   const [isDisable, setIsDisable] = useState<boolean>(false);
   const [isDataReady, setIsDataReady] = useState(false);
+  const [isSubmittedPolling, setIsSubmittedPolling] = useState(false);
 
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
@@ -79,9 +80,6 @@ export default function Home() {
   };
 
   const fetchingInitialData = async () => {
-    console.log(
-      "ㅇㅇㅇㅇㅇㅇㅇㄴㅁㅇㅁㄴ;암너라ㅓㄴㅁ잃;ㅓ인;ㅏ머히ㅏ;ㅇㄴ머;허인머힝ㄴ머히ㅏㅓㅇㄴ미ㅏ허ㅣ안머히;ㅇㄴ머",
-    );
     try {
       const userId = localStorage.getItem("userId");
       const token = localStorage.getItem("token");
@@ -104,9 +102,30 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchingInitialData();
-    }, 400);
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("submitted") === "true") {
+      setIsSubmittedPolling(true);
+      router.replace("/");
+    }
+  }, []);
+
+  useEffect(() => {
+    let pollingCount = 0;
+    const maxPollingCount = 5;
+    const interval = 750;
+
+    const pollingData = async () => {
+      while (pollingCount < maxPollingCount) {
+        await fetchingInitialData();
+        pollingCount++;
+
+        if (pollingCount < maxPollingCount) {
+          await new Promise((resolve) => setTimeout(resolve, interval));
+        }
+      }
+    };
+
+    pollingData();
 
     // visibilitychange 이벤트 핸들러 추가
     const handleVisibilityChange = () => {
@@ -119,7 +138,6 @@ export default function Home() {
 
     // 클린업 함수
     return () => {
-      clearTimeout(timeoutId); // timeout 클린업
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
@@ -138,16 +156,25 @@ export default function Home() {
     const dateToCheck = isSelectedDate || today;
     const dateStr = converDate({ date: dateToCheck });
     const todayStr = converDate({ date: today });
+
     if (today.getMonth() + 1 !== currentMonth) {
       setIsDisable(true);
       return;
+    }
+
+    if (userInfo) {
+      const accessEndDate = new Date(userInfo.access_end);
+      if (dateToCheck > accessEndDate) {
+        setIsDisable(true);
+        return;
+      }
     }
 
     setIsDisable(
       dateStr !== todayStr ||
         (dateStr === todayStr && writtenDays.includes(todayStr)),
     );
-  }, [isSelectedDate, writtenDays, today]);
+  }, [isSelectedDate, writtenDays, today, userInfo]);
 
   const handleNextMonth = () => {
     if (userInfo) {
@@ -237,7 +264,9 @@ export default function Home() {
           })}
         />
         <Button
-          disabled={isDataReady && userInfo ? isDisable : true}
+          disabled={
+            (isDataReady && userInfo ? isDisable : true) || isSubmittedPolling
+          }
           onClick={() => {
             // recordWrittenDay();
             redirectTallyForm({
