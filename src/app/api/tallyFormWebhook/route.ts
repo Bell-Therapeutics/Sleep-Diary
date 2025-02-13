@@ -24,30 +24,13 @@ type TallyWebhookPayload = {
 };
 
 export const POST = async (req: NextRequest) => {
-  // 초기 요청 로깅
-  console.log("🚨 Vercel Webhook Received");
-  console.log(
-    "🔍 Full Headers:",
-    JSON.stringify(Object.fromEntries(req.headers), null, 2),
-  );
-
   try {
-    // 페이로드 로깅
     const webhookPayload: TallyWebhookPayload = await req.json();
-    console.log("📦 Full Payload:", JSON.stringify(webhookPayload, null, 2));
-
-    // 시그니처 관련 로깅
     const tallyFormSignatureKey = req.headers.get("tally-signature");
-    console.log("🔑 Tally-Signature:", tallyFormSignatureKey);
-
-    // 환경 변수 로깅
     const mySigningSecretKey = process.env.NEXT_PUBLIC_TALLY_SIGNING_SECRET;
-    console.log("🔐 Signing Secret Exists:", !!mySigningSecretKey);
-    console.log("🔐 Signing Secret Value Length:", mySigningSecretKey?.length);
 
     const prisma = new PrismaClient();
     if (!mySigningSecretKey) {
-      console.error("❌ No Signing Secret Found");
       return NextResponse.json(
         { error: "Server configuration error" },
         { status: 500 },
@@ -58,13 +41,6 @@ export const POST = async (req: NextRequest) => {
     const checkSignature = createHmac("sha256", mySigningSecretKey)
       .update(JSON.stringify(webhookPayload))
       .digest("base64");
-
-    console.log("🔢 Generated Signature:", checkSignature);
-    console.log("🔢 Received Signature:", tallyFormSignatureKey);
-    console.log(
-      "🟢 Signature Match:",
-      tallyFormSignatureKey === checkSignature,
-    );
 
     if (tallyFormSignatureKey === checkSignature) {
       if (webhookPayload.eventType === "FORM_RESPONSE") {
@@ -80,10 +56,6 @@ export const POST = async (req: NextRequest) => {
           (field) => field.label === "userId",
         )?.value;
 
-        console.log("👤 Extracted User ID:", userId);
-        console.log("📅 Year-Month:", yearMonth);
-        console.log("📆 Day:", day);
-
         if (userId && typeof userId === "string") {
           try {
             // 기존 데이터 조회 로깅
@@ -96,11 +68,6 @@ export const POST = async (req: NextRequest) => {
               },
             });
 
-            console.log(
-              "📚 Existing Data:",
-              JSON.stringify(existingData, null, 2),
-            );
-
             if (existingData) {
               const currentDates = Array.isArray(existingData.dates)
                 ? existingData.dates
@@ -110,11 +77,7 @@ export const POST = async (req: NextRequest) => {
                 ? currentDates
                 : [...currentDates, day];
 
-              console.log("📝 Current Dates:", currentDates);
-              console.log("📝 Updated Dates:", updatedDates);
-
-              // 업데이트 로깅
-              const updateResult = await prisma.userDiary.update({
+              await prisma.userDiary.update({
                 where: {
                   userId_yearMonth: {
                     userId,
@@ -125,26 +88,15 @@ export const POST = async (req: NextRequest) => {
                   dates: updatedDates,
                 },
               });
-
-              console.log(
-                "✅ Update Result:",
-                JSON.stringify(updateResult, null, 2),
-              );
             } else {
               // 생성 로깅
-              console.log("🆕 Creating New Entry");
-              const createResult = await prisma.userDiary.create({
+              await prisma.userDiary.create({
                 data: {
                   userId,
                   yearMonth,
                   dates: [day],
                 },
               });
-
-              console.log(
-                "✅ Create Result:",
-                JSON.stringify(createResult, null, 2),
-              );
             }
           } catch (dbError) {
             console.error("❌ Database Error:", dbError);
