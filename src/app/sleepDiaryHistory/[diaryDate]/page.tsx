@@ -65,6 +65,7 @@ const DiaryHistory = () => {
   const [data, setData] = useState<DiaryHistoryDataType | null>(null);
   const [surveyDate, setSurveyDate] = useState<Date | null>(null);
   const [surveyAvg, setSurvetAvg] = useState<SleepStatsResponse | null>(null);
+  const [isSpinAnimation, setIsSpinAnimation] = useState(true);
 
   const convertToDate = (dateString: string): Date => {
     if (!dateString || !/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
@@ -114,7 +115,7 @@ const DiaryHistory = () => {
       const getDiaryHistory = async () => {
         try {
           const { data } = await axios.get(
-            `https://musitonin-sleep-diary.vercel.app/api/diaryHistory?userId=${userId}&yearMonthDay=${param.diaryDate}`,
+            `http://localhost:3000/api/diaryHistory?userId=${userId}&yearMonthDay=${param.diaryDate}`,
             {
               headers: {
                 "Content-Type": "application/json",
@@ -122,8 +123,10 @@ const DiaryHistory = () => {
             }
           );
 
-          if (data) {
+          if (data && data.data) {
             setData(data.data);
+          } else {
+            setIsSpinAnimation(false);
           }
         } catch (error) {
           console.error("Error fetching diary history:", error);
@@ -133,7 +136,7 @@ const DiaryHistory = () => {
       const getAvg = async () => {
         try {
           const { data } = await axios.get(
-            `https://musitonin-sleep-diary.vercel.app/api/getSurveyAvg?userId=${userId}&startDate=${startDate}&endDate=${endDate}`
+            `http://localhost:3000/api/getSurveyAvg?userId=${userId}&startDate=${startDate}&endDate=${endDate}`
           );
 
           if (data) {
@@ -213,7 +216,7 @@ const DiaryHistory = () => {
           })}
         </div>
       ) : (
-        <LoadingBox isSpinAnimation={false} />
+        <LoadingBox isSpinAnimation={isSpinAnimation} />
       )}
     </div>
   );
