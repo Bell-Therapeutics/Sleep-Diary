@@ -9,6 +9,7 @@ import { SurveyResponseBox } from "@/components/SurveyResponseBox/SurveyRespones
 import { useEffect, useState } from "react";
 import { SelectedTextType } from "@/components/SurveyResponseBox/SurveyResponesBox";
 import LoadingBox from "@/components/LoadingBox/LoadingBox";
+import { BASE_URL } from "@/constants/baseUrl";
 
 type SleepStatsResponse = {
   userId: string;
@@ -114,7 +115,7 @@ const DiaryHistory = () => {
       const getDiaryHistory = async () => {
         try {
           const { data } = await axios.get(
-            `http://localhost:3000/api/diaryHistory?userId=${userId}&yearMonthDay=${param.diaryDate}`,
+            `${BASE_URL}/api/diaryHistory?userId=${userId}&yearMonthDay=${param.diaryDate}`,
             {
               headers: {
                 "Content-Type": "application/json",
@@ -133,7 +134,7 @@ const DiaryHistory = () => {
       const getAvg = async () => {
         try {
           const { data } = await axios.get(
-            `http://localhost:3000/api/getSurveyAvg?userId=${userId}&startDate=${startDate}&endDate=${endDate}`
+            `${BASE_URL}/api/getSurveyAvg?userId=${userId}&startDate=${startDate}&endDate=${endDate}`
           );
 
           if (data) {
