@@ -21,6 +21,7 @@ type TallyWebhookPayload = {
       key: string;
       label: string;
       type: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       value: string | number | boolean | Array<any>;
       options?: Array<{
         id: string;
@@ -39,13 +40,13 @@ export const POST = async (req: NextRequest) => {
     if (!mySigningSecretKey) {
       return NextResponse.json(
         { error: "Server configuration error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
 
     console.log(
       "Webhook 페이로드 수신:",
-      JSON.stringify(webhookPayload.data, null, 2),
+      JSON.stringify(webhookPayload.data, null, 2)
     );
 
     // 시그니처 검증
@@ -57,7 +58,7 @@ export const POST = async (req: NextRequest) => {
       console.error("❌ Signature Verification Failed");
       return NextResponse.json(
         { message: "Webhook key가 유효하지 않습니다." },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
@@ -65,7 +66,7 @@ export const POST = async (req: NextRequest) => {
       const koreaTime = new Date(
         new Date(webhookPayload.data.createdAt).toLocaleString("en-US", {
           timeZone: "Asia/Seoul",
-        }),
+        })
       );
 
       const diaryDate = koreaTime.toISOString().split("T")[0];
@@ -77,11 +78,11 @@ export const POST = async (req: NextRequest) => {
       const yearMonth = `${year}-${month}`;
 
       const userId = webhookPayload.data.fields.find(
-        (field) => field.label === "userId",
+        (field) => field.label === "userId"
       )?.value;
 
       const userName = webhookPayload.data.fields.find(
-        (field) => field.label === "userName",
+        (field) => field.label === "userName"
       )?.value;
 
       if (userId && typeof userId === "string") {
@@ -104,7 +105,7 @@ export const POST = async (req: NextRequest) => {
             ) {
               const selectedId = field.value[0];
               const selectedOption = field.options.find(
-                (opt) => opt.id === selectedId,
+                (opt) => opt.id === selectedId
               );
 
               return {
@@ -190,33 +191,33 @@ export const POST = async (req: NextRequest) => {
 
           return NextResponse.json(
             { message: "수면일기 작성이 완료되었습니다." },
-            { status: 200 },
+            { status: 200 }
           );
         } catch (dbError) {
           console.error("❌ Database Error:", dbError);
           return NextResponse.json(
             { error: "Database error", details: dbError },
-            { status: 500 },
+            { status: 500 }
           );
         }
       } else {
         console.warn("⚠️ Invalid User ID");
         return NextResponse.json(
           { message: "유효하지 않은 사용자 ID입니다." },
-          { status: 400 },
+          { status: 400 }
         );
       }
     }
 
     return NextResponse.json(
       { message: "Webhook이 성공적으로 연동되었습니다." },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
     console.error("❌ Critical Webhook Error:", error);
     return NextResponse.json(
       { message: "Webhook error", details: error },
-      { status: 500 },
+      { status: 500 }
     );
   }
 };

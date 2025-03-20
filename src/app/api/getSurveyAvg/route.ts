@@ -78,6 +78,7 @@ export async function GET(req: NextRequest) {
         key: string;
         label: string;
         type: string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         value: any;
       }>;
 
