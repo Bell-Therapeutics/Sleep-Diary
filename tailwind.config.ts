@@ -17,6 +17,9 @@ export default {
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        fontFamily: {
+          labdigital: "var(--font-LABDigital)",
+        },
         gray: {
           primary: "#333333",
           secondary: "#999999",
@@ -25,6 +28,9 @@ export default {
           loginInputBorder: "#DBDBDB",
           inputTextColor: "#AAAFBC",
           date: "#A3A3A3",
+          ECECEC: "#ECECEC",
+          DDD: "#DDDDDD",
+          555: "#555555",
         },
         calendar: {
           primary: "#AFAFAF",
