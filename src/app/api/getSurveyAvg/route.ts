@@ -5,24 +5,25 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-// 시간 문자열을 분 단위로 변환하는 함수
 function convertTimeToMinutes(timeStr: string): number {
-  // "HH:MM" 또는 "H:MM" 형식의 시간 문자열을 처리
   const parts = timeStr.split(":");
   if (parts.length === 2) {
     const hours = parseInt(parts[0], 10);
     const minutes = parseInt(parts[1], 10);
     return hours * 60 + minutes;
   }
-  // 숫자만 있는 경우 그대로 반환 (이미 분 단위일 수 있음)
+
   return parseFloat(timeStr);
 }
 
-// 분 단위를 시간 문자열로 변환하는 함수
 function convertMinutesToTime(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const mins = Math.round(minutes % 60);
-  return `${hours}:${mins.toString().padStart(2, "0")}`;
+
+  const formattedHours = hours.toString().padStart(2, "0");
+  const formattedMins = mins.toString().padStart(2, "0");
+
+  return `${formattedHours}:${formattedMins}`;
 }
 
 export async function GET(req: NextRequest) {

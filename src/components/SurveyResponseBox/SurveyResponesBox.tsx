@@ -1,5 +1,6 @@
 "use client";
 
+import localFont from "next/font/local";
 export type SelectedTextType = keyof typeof matchingUserSelect;
 
 type SurveyResponseBoxProps = {
@@ -23,6 +24,10 @@ const matchingUserSelect = {
   "충분히 휴식을 취했다": 4,
   "매우 충분히 휴식을 취했다": 5,
 } as const;
+
+const digitalFont = localFont({
+  src: "../../assets/fonts/LABDigital.ttf",
+});
 
 export const SurveyResponseBox = ({
   questionLabel,
@@ -71,7 +76,7 @@ export const SurveyResponseBox = ({
           <>
             <p className="text-gray-DDD">|</p>
             <div className="bg-gray-ECECEC border-solid border-gray-DDD rounded-[4px] flex items-center justify-center px-[6px]">
-              <p className="text-[13px]">
+              <p className={`text-[13px] ${digitalFont.className}`}>
                 {"평균 : "}
                 {typeof surveyAvg === "number"
                   ? Math.round(surveyAvg)
