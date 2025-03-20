@@ -62,14 +62,11 @@ const Home = () => {
     setIsSelectedDate(date);
   };
   const fetchDiaryData = async (userId: string) => {
-    console.log("함수호출");
     try {
       const diaryResponse = await fetch(
         `/api/diary?userId=${userId}&yearMonth=${yearMonth}`
       );
       const diaryData = await diaryResponse.json();
-
-      console.log(diaryData.data, "정보가와야하는디", yearMonth);
 
       if (diaryResponse.ok) {
         setWrittenDays(
@@ -83,12 +80,6 @@ const Home = () => {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    if (writtenDays.length > 0) {
-      console.log(writtenDays);
-    }
-  }, [writtenDays]);
 
   const fetchingInitialData = async () => {
     try {
@@ -138,7 +129,6 @@ const Home = () => {
         }
 
         if (isMounted) {
-          console.log("폴링 완료, isSubmittedPolling을 false로 설정");
           setIsSubmittedPolling(false);
         }
       } catch (error) {
@@ -203,9 +193,7 @@ const Home = () => {
     );
   }, [isSelectedDate, writtenDays, today, userInfo, isSubmittedPolling]);
 
-  useEffect(() => {
-    console.log("isSelectedDate 변경됨:", isSelectedDate);
-  }, [isSelectedDate]);
+  useEffect(() => {}, [isSelectedDate]);
 
   const handleNextMonth = () => {
     if (userInfo) {

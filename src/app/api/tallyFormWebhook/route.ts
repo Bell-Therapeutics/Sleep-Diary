@@ -44,11 +44,6 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    console.log(
-      "Webhook 페이로드 수신:",
-      JSON.stringify(webhookPayload.data, null, 2)
-    );
-
     // 시그니처 검증
     const checkSignature = createHmac("sha256", mySigningSecretKey)
       .update(JSON.stringify(webhookPayload))
@@ -70,7 +65,6 @@ export const POST = async (req: NextRequest) => {
       );
 
       const diaryDate = koreaTime.toISOString().split("T")[0];
-      console.log("다이어리 날짜:", diaryDate);
 
       const year = koreaTime.getFullYear();
       const month = String(koreaTime.getMonth() + 1).padStart(2, "0");
@@ -138,7 +132,6 @@ export const POST = async (req: NextRequest) => {
                 surveyResponses: processedResponses,
               },
             });
-            console.log("기존 SleepDiary 업데이트 완료");
           } else {
             await prisma.sleepDiary.create({
               data: {

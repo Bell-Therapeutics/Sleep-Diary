@@ -156,8 +156,6 @@ const DiaryHistory = () => {
     return <div>loading...</div>;
   }
 
-  console.log(surveyDate);
-
   return (
     <div className="flex-1 pb-[44px] mobleHeight:pb-[25px] bg-white px-6 flex flex-col">
       <div className="w-[100%] h-[44px] flex justify-center items-center relative mt-[20px]">
@@ -211,6 +209,7 @@ const DiaryHistory = () => {
                 selectedText={response.selectedText}
                 value={displayValue}
                 surveyAvg={average}
+                isFirstSuyvey={surveyAvg?.totalDiaries !== 1}
               />
             );
           })}

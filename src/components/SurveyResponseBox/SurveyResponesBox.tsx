@@ -10,6 +10,7 @@ type SurveyResponseBoxProps = {
   value?: string;
   selectedText?: SelectedTextType;
   surveyAvg?: string | number | undefined;
+  isFirstSuyvey: boolean;
 };
 
 const matchingUserSelect = {
@@ -35,6 +36,7 @@ export const SurveyResponseBox = ({
   selectedText,
   value,
   surveyAvg,
+  isFirstSuyvey,
 }: SurveyResponseBoxProps) => {
   const filterSurveyType = () => {
     switch (type) {
@@ -72,7 +74,8 @@ export const SurveyResponseBox = ({
       </p>
       <div className="flex gap-[10px] mt-[10px]">
         {filterSurveyType()}
-        {type === "INPUT_TIME" || type === "INPUT_NUMBER" ? (
+        {(isFirstSuyvey && type === "INPUT_TIME") ||
+        (isFirstSuyvey && type === "INPUT_NUMBER") ? (
           <>
             <p className="text-gray-DDD">|</p>
             <div className="bg-gray-ECECEC border-solid border-gray-DDD rounded-[4px] flex items-center justify-center px-[6px]">
