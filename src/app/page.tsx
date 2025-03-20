@@ -17,8 +17,9 @@ import LoadingBox from "@/components/LoadingBox/LoadingBox";
 import { UserInfoType } from "@/types/UserInfo";
 import CalendarBox from "@/components/CalendarBox/CalendarBox";
 import LoadingIcon from "@/assets/svg/loadingIconGray.svg";
+import { getDiaryButtonStatus } from "@/hook/getDiaryButtonStatus";
 
-export default function Home() {
+const Home = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isSelectedDate, setIsSelectedDate] = useState<Date | null>(null);
   const [isAnyDateClicked, setIsAnyDateClicked] = useState(false);
@@ -27,6 +28,7 @@ export default function Home() {
   const [isDisable, setIsDisable] = useState<boolean>(false);
   const [isDataReady, setIsDataReady] = useState(false);
   const [isSubmittedPolling, setIsSubmittedPolling] = useState(false);
+  const [buttonStatus, setButtonStatus] = useState("");
 
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
@@ -38,7 +40,7 @@ export default function Home() {
   const startOfToday = new Date(
     today.getFullYear(),
     today.getMonth(),
-    today.getDate(),
+    today.getDate()
   );
   const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BASE_URL,
@@ -60,24 +62,33 @@ export default function Home() {
     setIsSelectedDate(date);
   };
   const fetchDiaryData = async (userId: string) => {
+    console.log("함수호출");
     try {
       const diaryResponse = await fetch(
-        `/api/diary?userId=${userId}&yearMonth=${yearMonth}`,
+        `/api/diary?userId=${userId}&yearMonth=${yearMonth}`
       );
       const diaryData = await diaryResponse.json();
+
+      console.log(diaryData.data, "정보가와야하는디", yearMonth);
 
       if (diaryResponse.ok) {
         setWrittenDays(
           createWrittenArr({
             writtenDays: diaryData.data.dates || [],
             yearMonth,
-          }),
+          })
         );
       }
     } catch (error) {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (writtenDays.length > 0) {
+      console.log(writtenDays);
+    }
+  }, [writtenDays]);
 
   const fetchingInitialData = async () => {
     try {
@@ -113,23 +124,37 @@ export default function Home() {
     let pollingCount = 0;
     const maxPollingCount = 5;
     const interval = 750;
+    let isMounted = true; // 컴포넌트 마운트 상태 추적
 
     const pollingData = async () => {
-      while (pollingCount < maxPollingCount) {
-        await fetchingInitialData();
-        pollingCount++;
+      try {
+        while (pollingCount < maxPollingCount && isMounted) {
+          await fetchingInitialData();
+          pollingCount++;
 
-        if (pollingCount < maxPollingCount) {
-          await new Promise((resolve) => setTimeout(resolve, interval));
+          if (pollingCount < maxPollingCount && isMounted) {
+            await new Promise((resolve) => setTimeout(resolve, interval));
+          }
+        }
+
+        if (isMounted) {
+          console.log("폴링 완료, isSubmittedPolling을 false로 설정");
+          setIsSubmittedPolling(false);
+        }
+      } catch (error) {
+        console.error("폴링 중 오류 발생:", error);
+        if (isMounted) {
+          setIsSubmittedPolling(false);
         }
       }
     };
 
+    // 폴링 시작
     pollingData();
 
     // visibilitychange 이벤트 핸들러 추가
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
+      if (document.visibilityState === "visible" && isMounted) {
         fetchingInitialData();
       }
     };
@@ -138,6 +163,7 @@ export default function Home() {
 
     // 클린업 함수
     return () => {
+      isMounted = false; // 컴포넌트가 언마운트되면 플래그 설정
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
@@ -157,11 +183,6 @@ export default function Home() {
     const dateStr = converDate({ date: dateToCheck });
     const todayStr = converDate({ date: today });
 
-    if (today.getMonth() + 1 !== currentMonth) {
-      setIsDisable(true);
-      return;
-    }
-
     if (userInfo) {
       const accessEndDate = new Date(userInfo.access_end);
       if (dateToCheck > accessEndDate) {
@@ -170,11 +191,21 @@ export default function Home() {
       }
     }
 
-    setIsDisable(
-      dateStr !== todayStr ||
-        (dateStr === todayStr && writtenDays.includes(todayStr)),
+    setIsDisable(dateStr !== todayStr && !writtenDays.includes(dateStr));
+
+    setButtonStatus(
+      getDiaryButtonStatus({
+        writtenDays,
+        isSelectedDate,
+        startOfToday,
+        today,
+      })
     );
-  }, [isSelectedDate, writtenDays, today, userInfo]);
+  }, [isSelectedDate, writtenDays, today, userInfo, isSubmittedPolling]);
+
+  useEffect(() => {
+    console.log("isSelectedDate 변경됨:", isSelectedDate);
+  }, [isSelectedDate]);
 
   const handleNextMonth = () => {
     if (userInfo) {
@@ -252,7 +283,7 @@ export default function Home() {
             isAnyDateClicked={isAnyDateClicked}
           />
         ) : (
-          <LoadingBox />
+          <LoadingBox isSpinAnimation={true} />
         )}
       </div>
       <div>
@@ -268,29 +299,27 @@ export default function Home() {
             (isDataReady && userInfo ? isDisable : true) || isSubmittedPolling
           }
           onClick={() => {
-            // recordWrittenDay();
-            redirectTallyForm({
-              userId: userInfo?.user_id || null,
-              userName: userInfo?.name || null,
-            });
+            if (buttonStatus === "수면 일기 보기") {
+              router.push(
+                `/sleepDiaryHistory/${converDate({
+                  date: isSelectedDate ? isSelectedDate : today,
+                })}`
+              );
+            } else {
+              redirectTallyForm({
+                userId: userInfo?.user_id || null,
+                userName: userInfo?.name || null,
+              });
+            }
           }}
         >
           {isDataReady && userInfo ? (
-            isSelectedDate ? (
-              writtenDays.includes(converDate({ date: isSelectedDate })) ? (
-                "수면일기 작성완료"
-              ) : isSelectedDate.getTime() !== startOfToday.getTime() ? (
-                "수면일기 작성불가"
-              ) : writtenDays.includes(converDate({ date: today })) ? (
-                "수면일기 작성완료"
-              ) : (
-                "수면일기 작성하기"
-              )
-            ) : writtenDays.includes(converDate({ date: today })) ? (
-              "수면일기 작성완료"
-            ) : (
-              "수면일기 작성하기"
-            )
+            getDiaryButtonStatus({
+              writtenDays,
+              isSelectedDate,
+              startOfToday,
+              today,
+            })
           ) : (
             <div className={"animate-spin"}>
               <Image
@@ -305,4 +334,6 @@ export default function Home() {
       </div>
     </div>
   );
-}
+};
+
+export default Home;

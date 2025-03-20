@@ -3,8 +3,11 @@ type CreateWrittenArr = {
   yearMonth: string;
 };
 
-export const createWrittenArr = ({ writtenDays = [] }: CreateWrittenArr) => {
+export const createWrittenArr = ({
+  writtenDays = [],
+  yearMonth,
+}: CreateWrittenArr) => {
   const sortArr = writtenDays.sort((a, b) => Number(a) - Number(b));
 
-  return sortArr.map((num) => `2025-02-${num.padStart(2, "0")}`);
+  return sortArr.map((num) => `${yearMonth}-${num.padStart(2, "0")}`);
 };
