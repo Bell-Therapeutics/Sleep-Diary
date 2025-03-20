@@ -9,7 +9,6 @@ import { SurveyResponseBox } from "@/components/SurveyResponseBox/SurveyRespones
 import { useEffect, useState } from "react";
 import { SelectedTextType } from "@/components/SurveyResponseBox/SurveyResponesBox";
 import LoadingBox from "@/components/LoadingBox/LoadingBox";
-import { BASE_URL } from "@/constants/baseUrl";
 
 type SleepStatsResponse = {
   userId: string;
