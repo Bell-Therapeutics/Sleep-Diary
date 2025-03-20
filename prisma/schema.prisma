@@ -21,3 +21,14 @@ model UserDiary {
 
   @@unique([userId, yearMonth])
 }
+
+model SleepDiary {
+  id              String   @id @default(uuid())
+  userId          String
+  userName        String
+  diaryDate       DateTime @db.Date
+  createdAt       DateTime @default(now())
+  surveyResponses Json
+
+  @@unique([userId, diaryDate])
+}
