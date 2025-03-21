@@ -71,6 +71,7 @@ const DiaryHistory = () => {
   const convertToDate = (dateString: string): Date => {
     if (!dateString || !/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
       router.push("/");
+      return new Date(); // 기본값 반환
     }
     const date = new Date(dateString);
 
@@ -81,24 +82,28 @@ const DiaryHistory = () => {
     return date;
   };
 
+  const checkIsValidDate = (date: Date) => {
+    const validFrom = localStorage.getItem("valid_from");
+    if (!validFrom) return true;
+
+    const validFromDate = new Date(validFrom);
+    validFromDate.setHours(0, 0, 0, 0);
+
+    // 날짜가 valid_from보다 작거나 같으면 이전 버튼 비활성화
+    return date.getTime() <= validFromDate.getTime();
+  };
+
   const navigateToDate = (direction: "prev" | "next") => {
     if (!surveyDate) return;
 
-    const validFrom = localStorage.getItem("valid_from");
     const newDate = new Date(surveyDate);
 
     if (direction === "prev") {
-      // 이전 날짜로 이동하기 전에 valid_from 체크
       newDate.setDate(newDate.getDate() - 1);
 
-      if (validFrom) {
-        const validFromDate = new Date(validFrom);
-        validFromDate.setHours(0, 0, 0, 0);
-
-        // 이동하려는 날짜가 valid_from보다 작으면 이동 중지
-        if (newDate.getTime() < validFromDate.getTime()) {
-          return;
-        }
+      // 이동하려는 날짜가 valid_from보다 작거나 같으면 이동 중지
+      if (checkIsValidDate(newDate)) {
+        return;
       }
     } else {
       newDate.setDate(newDate.getDate() + 1);
@@ -120,18 +125,7 @@ const DiaryHistory = () => {
 
   useEffect(() => {
     if (surveyDate) {
-      const validFrom = localStorage.getItem("valid_from");
-      if (validFrom) {
-        const validFromDate = new Date(validFrom);
-        validFromDate.setHours(0, 0, 0, 0);
-
-        // 현재 표시 중인 날짜가 valid_from보다 작거나 같으면 이전 버튼 비활성화
-        if (surveyDate.getTime() <= validFromDate.getTime()) {
-          setIsCheckDate(true);
-        } else {
-          setIsCheckDate(false);
-        }
-      }
+      setIsCheckDate(checkIsValidDate(surveyDate));
     }
   }, [surveyDate]);
 
@@ -179,7 +173,7 @@ const DiaryHistory = () => {
       getAvg();
       getDiaryHistory();
     }
-  }, []);
+  }, [param.diaryDate]); // diaryDate가 변경될 때마다 데이터를 다시 가져오도록 수정
 
   if (!surveyDate) {
     return <div>loading...</div>;
@@ -226,7 +220,8 @@ const DiaryHistory = () => {
         >
           {questionLabel.map((question, index) => {
             const response = data.surveyResponses.slice(2)[index];
-            const displayValue = response.value || response.selectedText || "";
+            const displayValue =
+              response?.value || response?.selectedText || "";
             const average =
               surveyAvg?.averages && index < surveyAvg.averages.length
                 ? surveyAvg.averages[index].average
@@ -236,8 +231,8 @@ const DiaryHistory = () => {
               <SurveyResponseBox
                 key={index}
                 questionLabel={question}
-                type={response.type}
-                selectedText={response.selectedText}
+                type={response?.type || ""}
+                selectedText={response?.selectedText}
                 value={displayValue}
                 surveyAvg={average}
                 isFirstSuyvey={surveyAvg?.totalDiaries !== 1}
