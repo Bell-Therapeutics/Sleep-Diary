@@ -48,7 +48,9 @@ export const SurveyResponseBox = ({
         );
       case "INPUT_NUMBER":
         return (
-          <p className="text-[15px] text-day-border font-bold">{`${value}번`}</p>
+          <p className="text-[15px] text-day-border font-bold">{`${
+            !value ? 0 : value
+          }번`}</p>
         );
       case "MULTIPLE_CHOICE":
         return (

@@ -14,6 +14,9 @@ export const getDiaryButtonStatus = ({
   startOfToday,
   today,
 }: GetDiaryButtonStatusProps) => {
+  console.log("=========getDiaryButtonStatus==========");
+  console.log({ writtenDays, isSelectedDate, startOfToday, today });
+
   const todayStr = converDate({ date: today });
 
   if (!isSelectedDate) {

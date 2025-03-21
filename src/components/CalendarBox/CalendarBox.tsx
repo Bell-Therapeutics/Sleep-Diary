@@ -40,7 +40,7 @@ const CalendarBox = ({
           </div>
         ))}
       </div>
-      <div className="flex-1 mobleHeight:pb-[25px] bg-white  flex flex-col justify-between">
+      <div className="flex-1 mobleHeight:pb-[0px] bg-white  flex flex-col justify-between">
         <div className="flex flex-wrap gap-4 mobleHeight:gap-2 w-full mt-[14px]">
           {dateArr.map((dayArr, weekIndex) => {
             const daysWithType = dayArr.map((day) => ({
@@ -69,7 +69,7 @@ const CalendarBox = ({
                         isDiaryWritten={
                           day.date !== null
                             ? writtenDays.includes(
-                                converDate({ date: day.date }),
+                                converDate({ date: day.date })
                               )
                             : false
                         }

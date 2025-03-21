@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -29,6 +29,10 @@ const Home = () => {
   const [isDataReady, setIsDataReady] = useState(false);
   const [isSubmittedPolling, setIsSubmittedPolling] = useState(false);
   const [buttonStatus, setButtonStatus] = useState("");
+
+  // 폴링 관련 추가 상태
+  const previousWrittenDaysRef = useRef<string[]>([]);
+  const isRedirectedFromTally = useRef<boolean>(false);
 
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
@@ -61,6 +65,7 @@ const Home = () => {
 
     setIsSelectedDate(date);
   };
+
   const fetchDiaryData = async (userId: string) => {
     try {
       const diaryResponse = await fetch(
@@ -69,15 +74,18 @@ const Home = () => {
       const diaryData = await diaryResponse.json();
 
       if (diaryResponse.ok) {
-        setWrittenDays(
-          createWrittenArr({
-            writtenDays: diaryData.data.dates || [],
-            yearMonth,
-          })
-        );
+        const newWrittenDays = createWrittenArr({
+          writtenDays: diaryData.data.dates || [],
+          yearMonth,
+        });
+
+        setWrittenDays(newWrittenDays);
+        return newWrittenDays; // 새로운 데이터 반환
       }
+      return null;
     } catch (error) {
       console.error(error);
+      return null;
     }
   };
 
@@ -88,7 +96,7 @@ const Home = () => {
 
       if (!userId || !token) {
         router.push("/auth/login");
-        return;
+        return null;
       }
 
       const userInfoResponse = await api.get<UserInfoType>("/user/info", {
@@ -96,45 +104,91 @@ const Home = () => {
       });
 
       setUserInfo(userInfoResponse.data);
-      await fetchDiaryData(userInfoResponse.data.user_id);
+      const newWrittenDays = await fetchDiaryData(
+        userInfoResponse.data.user_id
+      );
       setIsDataReady(true);
+      return newWrittenDays;
     } catch (error) {
       console.error(error);
+      return null;
     }
+  };
+
+  // 데이터 변경 감지 함수
+  const hasDataChanged = (oldData: string[], newData: string[]) => {
+    if (oldData.length !== newData.length) return true;
+
+    // 날짜가 추가되었는지 확인
+    for (const day of newData) {
+      if (!oldData.includes(day)) return true;
+    }
+
+    return false;
   };
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("submitted") === "true") {
       setIsSubmittedPolling(true);
+      isRedirectedFromTally.current = true;
       router.replace("/");
     }
   }, []);
 
   useEffect(() => {
     let pollingCount = 0;
-    const maxPollingCount = 5;
+    const maxPollingCount = 10; // 최대 폴링 횟수 증가
     const interval = 750;
-    let isMounted = true; // 컴포넌트 마운트 상태 추적
+    let isMounted = true;
 
     const pollingData = async () => {
       try {
-        while (pollingCount < maxPollingCount && isMounted) {
-          await fetchingInitialData();
-          pollingCount++;
+        // Tally에서 리다이렉트 된 경우
+        if (isRedirectedFromTally.current) {
+          // 현재 데이터 저장
+          const initialData = await fetchingInitialData();
+          if (initialData) {
+            previousWrittenDaysRef.current = [...initialData];
 
-          if (pollingCount < maxPollingCount && isMounted) {
-            await new Promise((resolve) => setTimeout(resolve, interval));
+            let dataChanged = false;
+
+            while (
+              pollingCount < maxPollingCount &&
+              isMounted &&
+              !dataChanged
+            ) {
+              // 잠시 대기
+              await new Promise((resolve) => setTimeout(resolve, interval));
+
+              // 새 데이터 가져오기
+              const newData = await fetchingInitialData();
+
+              if (
+                newData &&
+                hasDataChanged(previousWrittenDaysRef.current, newData)
+              ) {
+                dataChanged = true;
+                console.log("데이터 변경 감지: 폴링 종료");
+              }
+
+              pollingCount++;
+            }
           }
+        } else {
+          // 일반 접속 시 데이터 한 번만 가져오기
+          await fetchingInitialData();
         }
 
         if (isMounted) {
           setIsSubmittedPolling(false);
+          isRedirectedFromTally.current = false;
         }
       } catch (error) {
         console.error("폴링 중 오류 발생:", error);
         if (isMounted) {
           setIsSubmittedPolling(false);
+          isRedirectedFromTally.current = false;
         }
       }
     };
@@ -153,7 +207,7 @@ const Home = () => {
 
     // 클린업 함수
     return () => {
-      isMounted = false; // 컴포넌트가 언마운트되면 플래그 설정
+      isMounted = false;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
@@ -162,7 +216,10 @@ const Home = () => {
   useEffect(() => {
     if (userInfo?.user_id) {
       setIsDataReady(false);
-      fetchDiaryData(userInfo.user_id).then(() => {
+      fetchDiaryData(userInfo.user_id).then((newData) => {
+        if (newData) {
+          previousWrittenDaysRef.current = [...newData];
+        }
         setIsDataReady(true);
       });
     }
@@ -181,8 +238,6 @@ const Home = () => {
       }
     }
 
-    setIsDisable(dateStr !== todayStr && !writtenDays.includes(dateStr));
-
     setButtonStatus(
       getDiaryButtonStatus({
         writtenDays,
@@ -191,9 +246,9 @@ const Home = () => {
         today,
       })
     );
-  }, [isSelectedDate, writtenDays, today, userInfo, isSubmittedPolling]);
 
-  useEffect(() => {}, [isSelectedDate]);
+    setIsDisable(dateStr !== todayStr && !writtenDays.includes(dateStr));
+  }, [isSelectedDate, writtenDays, today, userInfo, isSubmittedPolling]);
 
   const handleNextMonth = () => {
     if (userInfo) {
@@ -233,7 +288,7 @@ const Home = () => {
     <div className="flex-1 pb-[44px] mobleHeight:pb-[25px] bg-white px-6 flex flex-col justify-between">
       <div>
         <div className="mt-[28px] mobleHeight:mt-[14px]">
-          <h1 className="text-gray-primary text-[32px] mobleHeight:text-[26px] font-bold break-words">
+          <h1 className="text-gray-primary text-[32px] mobleHeight:text-[23px] font-bold break-words">
             수면 일기
           </h1>
           <p className="text-gray-tertiary text-[16px] font-[500] mt-3">
@@ -260,7 +315,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        {isDataReady && userInfo ? (
+        {isDataReady && userInfo && !isSubmittedPolling ? (
           <CalendarBox
             dateArr={splitArr}
             userInfo={userInfo}
@@ -301,7 +356,7 @@ const Home = () => {
             }
           }}
         >
-          {isDataReady && userInfo ? (
+          {isDataReady && userInfo && !isSubmittedPolling ? (
             getDiaryButtonStatus({
               writtenDays,
               isSelectedDate,

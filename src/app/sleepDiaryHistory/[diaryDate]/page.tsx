@@ -66,6 +66,7 @@ const DiaryHistory = () => {
   const [surveyDate, setSurveyDate] = useState<Date | null>(null);
   const [surveyAvg, setSurvetAvg] = useState<SleepStatsResponse | null>(null);
   const [isSpinAnimation, setIsSpinAnimation] = useState(true);
+  const [isCheckDate, setIsCheckDate] = useState(false);
 
   const convertToDate = (dateString: string): Date => {
     if (!dateString || !/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
@@ -83,12 +84,24 @@ const DiaryHistory = () => {
   const navigateToDate = (direction: "prev" | "next") => {
     if (!surveyDate) return;
 
+    const validFrom = localStorage.getItem("valid_from");
     const newDate = new Date(surveyDate);
 
-    if (direction === "next") {
-      newDate.setDate(newDate.getDate() + 1);
-    } else {
+    if (direction === "prev") {
+      // 이전 날짜로 이동하기 전에 valid_from 체크
       newDate.setDate(newDate.getDate() - 1);
+
+      if (validFrom) {
+        const validFromDate = new Date(validFrom);
+        validFromDate.setHours(0, 0, 0, 0);
+
+        // 이동하려는 날짜가 valid_from보다 작으면 이동 중지
+        if (newDate.getTime() < validFromDate.getTime()) {
+          return;
+        }
+      }
+    } else {
+      newDate.setDate(newDate.getDate() + 1);
     }
 
     const year = newDate.getFullYear();
@@ -96,7 +109,6 @@ const DiaryHistory = () => {
     const day = String(newDate.getDate()).padStart(2, "0");
 
     const formattedDate = `${year}-${month}-${day}`;
-
     router.replace(`/sleepDiaryHistory/${formattedDate}`);
   };
 
@@ -107,6 +119,23 @@ const DiaryHistory = () => {
   }, [surveyDay]);
 
   useEffect(() => {
+    if (surveyDate) {
+      const validFrom = localStorage.getItem("valid_from");
+      if (validFrom) {
+        const validFromDate = new Date(validFrom);
+        validFromDate.setHours(0, 0, 0, 0);
+
+        // 현재 표시 중인 날짜가 valid_from보다 작거나 같으면 이전 버튼 비활성화
+        if (surveyDate.getTime() <= validFromDate.getTime()) {
+          setIsCheckDate(true);
+        } else {
+          setIsCheckDate(false);
+        }
+      }
+    }
+  }, [surveyDate]);
+
+  useEffect(() => {
     const userId = localStorage.getItem("userId");
     const startDate = localStorage.getItem("valid_from");
     const endDate = localStorage.getItem("valid_to");
@@ -115,7 +144,7 @@ const DiaryHistory = () => {
       const getDiaryHistory = async () => {
         try {
           const { data } = await axios.get(
-            `https://musitonin-sleep-diary.vercel.app/api/diaryHistory?userId=${userId}&yearMonthDay=${param.diaryDate}`,
+            `http://localhost:3000/api/diaryHistory?userId=${userId}&yearMonthDay=${param.diaryDate}`,
             {
               headers: {
                 "Content-Type": "application/json",
@@ -136,7 +165,7 @@ const DiaryHistory = () => {
       const getAvg = async () => {
         try {
           const { data } = await axios.get(
-            `https://musitonin-sleep-diary.vercel.app/api/getSurveyAvg?userId=${userId}&startDate=${startDate}&endDate=${endDate}`
+            `http://localhost:3000/api/getSurveyAvg?userId=${userId}&startDate=${startDate}&endDate=${endDate}`
           );
 
           if (data) {
@@ -167,8 +196,10 @@ const DiaryHistory = () => {
       <div className="w-full flex flex-col mt-[24px]">
         <div className="w-[100%] flex items-center justify-between">
           <div
-            className="w-[20px] h-[12px]"
-            onClick={() => navigateToDate("prev")}
+            className={`w-[20px] h-[12px] ${
+              isCheckDate ? "opacity-30 cursor-not-allowed" : "cursor-pointer"
+            }`}
+            onClick={() => !isCheckDate && navigateToDate("prev")}
           >
             <Image src={PreviousIcon} alt="왼쪽화살표" />
           </div>
