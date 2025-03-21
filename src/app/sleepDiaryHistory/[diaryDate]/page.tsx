@@ -82,15 +82,33 @@ const DiaryHistory = () => {
     return date;
   };
 
-  const checkIsValidDate = (date: Date) => {
+  // URL을 통한 유효하지 않은 날짜 접근 체크
+  const checkValidDateAccess = (date: Date) => {
     const validFrom = localStorage.getItem("valid_from");
     if (!validFrom) return true;
 
     const validFromDate = new Date(validFrom);
     validFromDate.setHours(0, 0, 0, 0);
 
-    // 날짜가 valid_from보다 작거나 같으면 이전 버튼 비활성화
-    return date.getTime() <= validFromDate.getTime();
+    // 현재 날짜가 valid_from보다 작으면 홈으로 리다이렉트
+    if (date.getTime() < validFromDate.getTime()) {
+      alert("접근할 수 없는 날짜입니다.");
+      router.push("/");
+      return false;
+    }
+    return true;
+  };
+
+  // valid_from과 같은 날짜일 때만 이전 버튼 비활성화
+  const isPrevDisabled = (date: Date) => {
+    const validFrom = localStorage.getItem("valid_from");
+    if (!validFrom) return false;
+
+    const validFromDate = new Date(validFrom);
+    validFromDate.setHours(0, 0, 0, 0);
+
+    // valid_from과 정확히 같은 날짜일 때만 비활성화
+    return date.getTime() === validFromDate.getTime();
   };
 
   const navigateToDate = (direction: "prev" | "next") => {
@@ -101,9 +119,17 @@ const DiaryHistory = () => {
     if (direction === "prev") {
       newDate.setDate(newDate.getDate() - 1);
 
-      // 이동하려는 날짜가 valid_from보다 작거나 같으면 이동 중지
-      if (checkIsValidDate(newDate)) {
-        return;
+      // valid_from 체크
+      const validFrom = localStorage.getItem("valid_from");
+      if (validFrom) {
+        const validFromDate = new Date(validFrom);
+        validFromDate.setHours(0, 0, 0, 0);
+
+        // valid_from보다 작을 때만 이동 중지
+        if (newDate.getTime() < validFromDate.getTime()) {
+          return;
+        }
+        // 여기서는 newDate.getTime() === validFromDate.getTime()인 경우는 이동이 가능함
       }
     } else {
       newDate.setDate(newDate.getDate() + 1);
@@ -119,13 +145,27 @@ const DiaryHistory = () => {
 
   useEffect(() => {
     if (surveyDay && typeof surveyDay === "string") {
-      setSurveyDate(convertToDate(surveyDay));
+      const date = convertToDate(surveyDay);
+      setSurveyDate(date);
+
+      // URL 접근 유효성 체크
+      checkValidDateAccess(date);
     }
   }, [surveyDay]);
 
   useEffect(() => {
     if (surveyDate) {
-      setIsCheckDate(checkIsValidDate(surveyDate));
+      setIsCheckDate(isPrevDisabled(surveyDate));
+
+      // 디버깅 로그
+      console.log("Current date:", surveyDate);
+      console.log("Is prev button disabled:", isPrevDisabled(surveyDate));
+
+      // valid_from 확인
+      const validFrom = localStorage.getItem("valid_from");
+      if (validFrom) {
+        console.log("Valid from date:", new Date(validFrom));
+      }
     }
   }, [surveyDate]);
 
@@ -138,7 +178,7 @@ const DiaryHistory = () => {
       const getDiaryHistory = async () => {
         try {
           const { data } = await axios.get(
-            `https://musitonin-sleep-diary.vercel.app/api/diaryHistory?userId=${userId}&yearMonthDay=${param.diaryDate}`,
+            `http://localhost:3000/api/diaryHistory?userId=${userId}&yearMonthDay=${param.diaryDate}`,
             {
               headers: {
                 "Content-Type": "application/json",
@@ -159,7 +199,7 @@ const DiaryHistory = () => {
       const getAvg = async () => {
         try {
           const { data } = await axios.get(
-            `https://musitonin-sleep-diary.vercel.app/api/getSurveyAvg?userId=${userId}&startDate=${startDate}&endDate=${endDate}`
+            `http://localhost:3000/api/getSurveyAvg?userId=${userId}&startDate=${startDate}&endDate=${endDate}`
           );
 
           if (data) {
@@ -173,7 +213,7 @@ const DiaryHistory = () => {
       getAvg();
       getDiaryHistory();
     }
-  }, [param.diaryDate]); // diaryDate가 변경될 때마다 데이터를 다시 가져오도록 수정
+  }, [param.diaryDate]);
 
   if (!surveyDate) {
     return <div>loading...</div>;
