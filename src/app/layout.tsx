@@ -10,8 +10,8 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Sleep Diary",
-  description: "Sleep Diary App",
+  title: "수면 일기",
+  description: "수면 일기 앱",
 };
 
 export default function RootLayout({
@@ -21,6 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${pretendard.variable} w-full h-full`}>
+      <head>
+        <link rel="manifest" href="/manifest" />
+      </head>
       <body
         className={`${pretendard.className} w-[100vw] h-[100%]  bg-gray-tertiary flex justify-center`}
       >
