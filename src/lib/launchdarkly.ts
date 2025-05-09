@@ -1,8 +1,10 @@
 import { init as initializeLDClient } from "launchdarkly-node-server-sdk";
 
-const client = initializeLDClient("sdk-a286c77b-cf47-4ff8-940d-39bea7b9da33");
+const client = initializeLDClient(
+  process.env.NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID!
+);
 const user = {
-  key: "anonymous-user",
+  key: "Belltherapeutics",
   anonymous: true,
 };
 
