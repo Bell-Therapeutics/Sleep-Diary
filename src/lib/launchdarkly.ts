@@ -1,19 +1,32 @@
-import { init as initializeLDClient } from "launchdarkly-node-server-sdk";
+import {
+  init as initializeLDClient,
+  LDClient,
+} from "launchdarkly-node-server-sdk";
 
-const client = initializeLDClient(
-  process.env.NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID!
-);
-const user = {
-  key: "Belltherapeutics",
-  anonymous: true,
-};
-
+let client: LDClient | null = null;
 let initialized = false;
 
 export async function getFlagValue(flagKey: string): Promise<boolean> {
-  if (!initialized) {
-    await client.waitForInitialization();
-    initialized = true;
+  try {
+    if (!client) {
+      client = initializeLDClient(
+        process.env.NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID!
+      );
+    }
+
+    if (!initialized) {
+      await client.waitForInitialization();
+      initialized = true;
+    }
+
+    const user = {
+      key: "anonymous",
+      anonymous: true,
+    };
+
+    return client.variation(flagKey, user, false);
+  } catch (error) {
+    console.error("LaunchDarkly error:", error);
+    return false;
   }
-  return client.variation(flagKey, user, false);
 }

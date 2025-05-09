@@ -3,7 +3,13 @@ import { NextResponse } from "next/server";
 import { getFlagValue } from "@/lib/launchdarkly"; // 런치다클리에서 플래그 가져오는 함수
 
 export async function GET() {
-  const isNewAppName = await getFlagValue("permitted-flag");
+  let isNewAppName = false;
+  try {
+    isNewAppName = await getFlagValue("permitted-flag");
+  } catch (error) {
+    console.error("Failed to get LaunchDarkly flag:", error);
+    // Default to false if flag check fails
+  }
 
   const manifest = {
     name: isNewAppName ? "Belltx 수면일기" : "뮤지토닌 수면일기",
