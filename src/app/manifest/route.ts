@@ -1,4 +1,3 @@
-// app/manifest/route.ts
 import { NextResponse } from "next/server";
 import { getFlagValue } from "@/lib/launchdarkly"; // 런치다클리에서 플래그 가져오는 함수
 
@@ -49,5 +48,8 @@ export async function GET() {
     start_url: "/",
   };
 
-  return NextResponse.json(manifest);
+  const response = NextResponse.json(manifest);
+  response.headers.set("Cache-Control", "no-store");
+
+  return response;
 }
