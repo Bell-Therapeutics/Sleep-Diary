@@ -10,8 +10,8 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "뮤지토닌 수면일기",
-  description: "뮤지토닌 전자수면일기 앱입니다.",
+  title: "Sleep Diary",
+  description: "Sleep Diary App",
 };
 
 export default function RootLayout({

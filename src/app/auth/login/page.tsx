@@ -42,7 +42,7 @@ const LoginPage = () => {
               "text-gray-primary text-2xl font-bold leading-9 break-word whitespace-pre-line"
             }
           >
-            {"뮤지토닌 수면 일기"}
+            {"Sleep Diary"}
           </h1>
           <p
             className={

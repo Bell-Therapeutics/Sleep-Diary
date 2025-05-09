@@ -2,9 +2,9 @@ import { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "musitonin-sleep-diary",
-    short_name: "뮤지토닌 수면일기",
-    description: "뮤지토닌 전자수면일기 앱입니다.",
+    name: "Sleep Diary",
+    short_name: "Sleep Diary",
+    description: "Sleep Diary App",
     icons: [
       {
         src: "/icons/sleepDiaryLogo-192.png",
