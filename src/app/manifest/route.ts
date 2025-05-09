@@ -50,14 +50,17 @@ export async function GET() {
 
   const response = NextResponse.json(manifest);
 
-  // 캐시 제어 헤더 추가
+  // Vercel CDN 캐싱 우회를 위한 헤더 추가
   response.headers.set(
     "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate"
+    "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
   );
   response.headers.set("Pragma", "no-cache");
   response.headers.set("Expires", "0");
   response.headers.set("Surrogate-Control", "no-store");
+  response.headers.set("Vercel-CDN-Cache-Control", "no-cache");
+  response.headers.set("CDN-Cache-Control", "no-cache");
+  response.headers.set("Cloudflare-CDN-Cache-Control", "no-cache");
 
   return response;
 }
