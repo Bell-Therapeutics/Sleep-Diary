@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { getFlagValue } from "@/lib/launchdarkly"; // 런치다클리에서 플래그 가져오는 함수
+import { getFlagValue } from "@/lib/launchdarkly";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET() {
   let isNewAppName = false;
@@ -7,7 +10,6 @@ export async function GET() {
     isNewAppName = await getFlagValue("permitted-flag");
   } catch (error) {
     console.error("Failed to get LaunchDarkly flag:", error);
-    // Default to false if flag check fails
   }
 
   const manifest = {

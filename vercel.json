@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/manifest",
+      "source": "/api/manifest",
       "headers": [
         {
           "key": "Cache-Control",
