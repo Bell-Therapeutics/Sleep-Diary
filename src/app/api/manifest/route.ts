@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getFlagValue } from "@/lib/launchdarkly";
+import { getServerFlagValue } from "@/lib/serverLaunchDarkly";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -7,7 +7,7 @@ export const revalidate = 0;
 export async function GET() {
   let isNewAppName = false;
   try {
-    isNewAppName = await getFlagValue("permitted-flag");
+    isNewAppName = await getServerFlagValue("permitted-flag");
   } catch (error) {
     console.error("Failed to get LaunchDarkly flag:", error);
   }

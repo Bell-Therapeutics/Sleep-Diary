@@ -1,13 +1,20 @@
+import { getClientFlagValue } from "@/lib/clientLaunchDarkly";
+
 type RedirectTallyFormFormProps = {
   userId: string | null;
   userName: string | null;
 };
 
-export const redirectTallyForm = ({
+export const redirectTallyForm = async ({
   userId,
   userName,
 }: RedirectTallyFormFormProps) => {
-  const TALLY_FORM_URL = process.env.NEXT_PUBLIC_TALLY_FORM_URL;
+  const flagValue = await getClientFlagValue("tally-form-flag");
+  console.log("flagValue", flagValue);
+  const TALLY_FORM_URL =
+    flagValue === "UT"
+      ? process.env.NEXT_PUBLIC_TALLY_FORM_URL
+      : process.env.NEXT_PUBLIC_SNUH_TALLY_FORM_URL;
 
   if (!TALLY_FORM_URL) {
     console.error("환경 변수가 설정되지 않았습니다.");

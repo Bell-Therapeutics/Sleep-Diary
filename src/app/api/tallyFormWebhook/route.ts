@@ -1,6 +1,7 @@
 import { createHmac } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { getServerFlagValue } from "@/lib/serverLaunchDarkly";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
@@ -35,7 +36,11 @@ export const POST = async (req: NextRequest) => {
   try {
     const webhookPayload: TallyWebhookPayload = await req.json();
     const tallyFormSignatureKey = req.headers.get("tally-signature");
-    const mySigningSecretKey = process.env.NEXT_PUBLIC_TALLY_SIGNING_SECRET;
+    const flagValue = await getServerFlagValue("tally-form-flag");
+    const mySigningSecretKey =
+      flagValue === "UT"
+        ? process.env.NEXT_PUBLIC_TALLY_SIGNING_SECRET
+        : process.env.NEXT_PUBLIC_SNUH_TALLY_SIGNING_SECRET;
 
     if (!mySigningSecretKey) {
       return NextResponse.json(
@@ -58,11 +63,9 @@ export const POST = async (req: NextRequest) => {
     }
 
     if (webhookPayload.eventType === "FORM_RESPONSE") {
-      const koreaTime = new Date(
-        new Date(webhookPayload.data.createdAt).toLocaleString("en-US", {
-          timeZone: "Asia/Seoul",
-        })
-      );
+      // Convert the timestamp to Korea timezone
+      const koreaTime = new Date(webhookPayload.data.createdAt);
+      koreaTime.setHours(koreaTime.getHours() + 9); // Add 9 hours for KST
 
       const diaryDate = koreaTime.toISOString().split("T")[0];
 
