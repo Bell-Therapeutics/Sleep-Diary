@@ -11,9 +11,7 @@ export async function getServerFlagValue(
 ): Promise<boolean | string> {
   try {
     if (!client) {
-      client = initializeLDClient(
-        process.env.NEXT_PUBLIC_LAUNCHDARKLY_SECRET_KEY!
-      );
+      client = initializeLDClient(process.env.LAUNCHDARKLY_SECRET_KEY!);
     }
 
     if (!initialized) {
