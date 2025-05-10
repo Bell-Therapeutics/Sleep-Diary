@@ -5,17 +5,12 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET() {
-  let isNewAppName = false;
-  try {
-    isNewAppName = (await getServerFlagValue("permitted-flag")) as boolean;
-  } catch (error) {
-    console.error("Failed to get LaunchDarkly flag:", error);
-  }
+  const flagValue = await getServerFlagValue("permitted-flag");
 
   const manifest = {
-    name: isNewAppName ? "Belltx 수면일기" : "뮤지토닌 수면일기",
-    short_name: isNewAppName ? "Belltx 수면일기" : "뮤지토닌 수면일기",
-    description: isNewAppName ? "Belltx 수면일기" : "뮤지토닌 수면일기",
+    name: flagValue ? "Belltx 수면일기" : "뮤지토닌 수면일기",
+    short_name: flagValue ? "Belltx 수면일기" : "뮤지토닌 수면일기",
+    description: flagValue ? "Belltx 수면일기" : "뮤지토닌 수면일기",
     icons: [
       {
         src: "/icons/sleepDiaryLogo-192.png",
