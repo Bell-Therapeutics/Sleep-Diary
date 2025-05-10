@@ -7,7 +7,7 @@ export const revalidate = 0;
 export async function GET() {
   let isNewAppName = false;
   try {
-    isNewAppName = await getServerFlagValue("permitted-flag");
+    isNewAppName = (await getServerFlagValue("permitted-flag")) as boolean;
   } catch (error) {
     console.error("Failed to get LaunchDarkly flag:", error);
   }
