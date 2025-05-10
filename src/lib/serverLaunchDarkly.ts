@@ -6,11 +6,13 @@ import {
 let client: LDClient | null = null;
 let initialized = false;
 
-export async function getFlagValue(flagKey: string): Promise<boolean> {
+export async function getServerFlagValue(
+  flagKey: string
+): Promise<boolean | string> {
   try {
     if (!client) {
       client = initializeLDClient(
-        process.env.NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID!
+        process.env.NEXT_PUBLIC_LAUNCHDARKLY_SECRET_KEY!
       );
     }
 
