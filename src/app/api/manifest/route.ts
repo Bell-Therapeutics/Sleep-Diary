@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
-import { getServerFlagValue } from "@/lib/serverLaunchDarkly";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET() {
-  const flagValue = await getServerFlagValue("permitted-flag");
-
   const manifest = {
-    name: flagValue ? "Belltx 수면일기" : "뮤지토닌 수면일기",
-    short_name: flagValue ? "Belltx 수면일기" : "뮤지토닌 수면일기",
-    description: flagValue ? "Belltx 수면일기" : "뮤지토닌 수면일기",
+    name: "Sleep Diary",
+    short_name: "Sleep Diary",
+    description: "Sleep Diary",
     icons: [
       {
         src: "/icons/sleepDiaryLogo-192.png",
