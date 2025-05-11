@@ -178,7 +178,7 @@ const DiaryHistory = () => {
       const getDiaryHistory = async () => {
         try {
           const { data } = await axios.get(
-            `https://sleep-diary-five.vercel.app/api/diaryHistory?userId=${userId}&yearMonthDay=${param.diaryDate}`,
+            `https://sleep-diary-001.vercel.app/api/diaryHistory?userId=${userId}&yearMonthDay=${param.diaryDate}`,
             {
               headers: {
                 "Content-Type": "application/json",
@@ -199,7 +199,7 @@ const DiaryHistory = () => {
       const getAvg = async () => {
         try {
           const { data } = await axios.get(
-            `https://sleep-diary-five.vercel.app/api/getSurveyAvg?userId=${userId}&startDate=${startDate}&endDate=${endDate}`
+            `https://sleep-diary-001.vercel.app/api/getSurveyAvg?userId=${userId}&startDate=${startDate}&endDate=${endDate}`
           );
 
           if (data) {
