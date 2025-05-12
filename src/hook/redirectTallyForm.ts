@@ -32,15 +32,10 @@ export const redirectTallyForm = async ({
     formURL.searchParams.append("userName", userName);
     formURL.searchParams.append("userId", userId);
 
-    const link = document.createElement("a");
-    link.href = formURL.toString();
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.style.display = "none";
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    // PWA 환경을 고려하여 window.location.href 사용
+    // 모바일 PWA 환경에서는 새 창 열기가 제한될 수 있으므로
+    // 현재 창에서 이동하도록 수정
+    window.location.href = formURL.toString();
   } catch (error) {
     console.error("폼 리다이렉트 중 오류 발생:", error);
     alert("탤리 폼으로 이동하는 중 오류가 발생했습니다.");
